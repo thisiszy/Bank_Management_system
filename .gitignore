@@ -1,0 +1,4 @@
+*/
+!/backend
+*.bak
+/backend/__pycache__
