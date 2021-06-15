@@ -23,30 +23,30 @@ class Account(Base):
     __tablename__ = 'Account'
 
     AccNum = Column(DECIMAL(19, 0), primary_key=True)
-    Balance = Column(Float(8))
+    Balance = Column(Float(8), nullable=False)
     LastAccessTime = Column(DateTime)
-    OpenDate = Column(Date)
+    OpenDate = Column(Date, nullable=False)
 
 
 class Checking(Account):
     __tablename__ = 'Checking'
 
-    AccNum = Column(ForeignKey('Account.AccNum', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True)
-    Balance = Column(Float(8))
+    AccNum = Column(ForeignKey('Account.AccNum', ondelete='CASCADE', onupdate='RESTRICT'), primary_key=True)
+    Balance = Column(Float(8), nullable=False)
     LastAccessTime = Column(DateTime)
-    OpenDate = Column(Date)
-    Overdraft = Column(Float(8))
+    OpenDate = Column(Date, nullable=False)
+    Overdraft = Column(Float(8), nullable=False)
 
 
 class Saving(Account):
     __tablename__ = 'Saving'
 
-    AccNum = Column(ForeignKey('Account.AccNum', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True)
-    Balance = Column(Float(8))
+    AccNum = Column(ForeignKey('Account.AccNum', ondelete='CASCADE', onupdate='RESTRICT'), primary_key=True)
+    Balance = Column(Float(8), nullable=False)
     LastAccessTime = Column(DateTime)
-    OpenDate = Column(Date)
-    Rate = Column(Float)
-    CurrencyType = Column(Integer)
+    OpenDate = Column(Date, nullable=False)
+    Rate = Column(Float, nullable=False)
+    CurrencyType = Column(Integer, nullable=False)
 
 
 class Subbranch(Base):
@@ -125,7 +125,7 @@ class SavingManagement(Base):
 
     ID = Column(ForeignKey('User.ID', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True, nullable=False)
     SubName = Column(ForeignKey('Subbranch.SubName', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True, nullable=False, index=True)
-    AccNum = Column(ForeignKey('Saving.AccNum', ondelete='CASCADE', onupdate='RESTRICT'), index=True)
+    AccNum = Column(ForeignKey('Saving.AccNum', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False, index=True)
 
     Saving = relationship('Saving')
     User = relationship('User')
@@ -153,7 +153,7 @@ t_possess = Table(
     Column('SubName', String(20), nullable=False),
     Column('LoanNum', DECIMAL(8, 0), primary_key=True, nullable=False),
     Column('ID', ForeignKey('User.ID', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True, nullable=False, index=True),
-    ForeignKeyConstraint(['SubName', 'LoanNum'], ['Loan.SubName', 'Loan.LoanNum'], ondelete='CASCADE', onupdate='RESTRICT'),
+    ForeignKeyConstraint(['SubName', 'LoanNum'], ['Loan.SubName', 'Loan.LoanNum'], ondelete='RESTRICT', onupdate='RESTRICT'),
     Index('FK_POSSESS_POSSESS_LOAN', 'SubName', 'LoanNum')
 )
 

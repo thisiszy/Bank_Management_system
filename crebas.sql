@@ -26,9 +26,9 @@ drop table if exists possess;
 create table Account
 (
    AccNum               numeric(19,0) not null  comment '',
-   Balance              float(8,2)  comment '',
+   Balance              float(8,2) not null  comment '',
    LastAccessTime       datetime  comment '',
-   OpenDate             date  comment '',
+   OpenDate             date not null  comment '',
    primary key (AccNum)
 );
 
@@ -38,10 +38,10 @@ create table Account
 create table Checking
 (
    AccNum               numeric(19,0) not null  comment '',
-   Balance              float(8,2)  comment '',
+   Balance              float(8,2) not null  comment '',
    LastAccessTime       datetime  comment '',
-   OpenDate             date  comment '',
-   Overdraft            float(8,2)  comment '',
+   OpenDate             date not null  comment '',
+   Overdraft            float(8,2) not null  comment '',
    primary key (AccNum)
 );
 
@@ -120,11 +120,11 @@ create table Relate
 create table Saving
 (
    AccNum               numeric(19,0) not null  comment '',
-   Balance              float(8,2)  comment '',
+   Balance              float(8,2) not null  comment '',
    LastAccessTime       datetime  comment '',
-   OpenDate             date  comment '',
-   Rate                 float  comment '',
-   CurrencyType         int  comment '',
+   OpenDate             date not null  comment '',
+   Rate                 float not null  comment '',
+   CurrencyType         int not null  comment '',
    primary key (AccNum)
 );
 
@@ -135,7 +135,7 @@ create table SavingManagement
 (
    ID                   numeric(18,0) not null  comment '',
    SubName              varchar(20) not null  comment '',
-   AccNum               numeric(19,0)  comment '',
+   AccNum               numeric(19,0) not null  comment '',
    primary key (ID, SubName)
 );
 
@@ -189,7 +189,7 @@ create table possess
 );
 
 alter table Checking add constraint FK_CHECKING_INHERITAN_ACCOUNT foreign key (AccNum)
-      references Account (AccNum) on delete cascade on update cascade;
+      references Account (AccNum) on delete cascade on update restrict;
 
 alter table CheckingManagement add constraint FK_CHECKING_MANAGECHE_CHECKING foreign key (AccNum)
       references Checking (AccNum) on delete cascade on update restrict;
@@ -222,7 +222,7 @@ alter table Relate add constraint FK_RELATE_RELATE2_USER foreign key (ID)
       references User (ID) on delete restrict on update restrict;
 
 alter table Saving add constraint FK_SAVING_INHERITAN_ACCOUNT foreign key (AccNum)
-      references Account (AccNum) on delete cascade on update cascade;
+      references Account (AccNum) on delete cascade on update restrict;
 
 alter table SavingManagement add constraint FK_SAVINGMA_MANAGESAV_SAVING foreign key (AccNum)
       references Saving (AccNum) on delete cascade on update restrict;
@@ -237,7 +237,7 @@ alter table Worker add constraint FK_WORKER_RELATIONS_DEPARTME foreign key (SubN
       references Department (SubName, DepartNum) on delete restrict on update restrict;
 
 alter table possess add constraint FK_POSSESS_POSSESS_LOAN foreign key (SubName, LoanNum)
-      references Loan (SubName, LoanNum) on delete cascade on update restrict;
+      references Loan (SubName, LoanNum) on delete restrict on update restrict;
 
 alter table possess add constraint FK_POSSESS_POSSESS2_USER foreign key (ID)
       references User (ID) on delete restrict on update restrict;

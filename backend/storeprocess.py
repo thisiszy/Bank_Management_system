@@ -177,30 +177,13 @@ def _createAccount(acctype, info):
 
 '''
 delete account
-input: acctype(str), accnum(str)
-acctype == 'Checking' or 'Saving'
+input: accnum(str)
 '''
-def _delAccount(acctype, accnum):
-    if acctype == 'Checking':
-        acc = db_session.query(Checking).filter(Checking.AccNum == accnum)
-        if acc.first() is None:
-            raise NotFind('Account not find')
-        manage = db_session.query(CheckingManagement).filter(CheckingManagement.AccNum == accnum)
-        if manage.first() is None:
-            raise NotFind('Account management not find')
-        _alterBankAsset(manage.first().SubName, -acc.first().Balance)
-        db_session.query(Account).filter(Account.AccNum == accnum).delete()
-    elif acctype == 'Saving':
-        acc = db_session.query(Saving).filter(Saving.AccNum == accnum)
-        if acc.first() is None:
-            raise NotFind
-        manage = db_session.query(SavingManagement).filter(SavingManagement.AccNum == accnum)
-        if manage.first() is None:
-            raise NotFind('Account management not find')
-        _alterBankAsset(manage.first().SubName, -acc.first().Balance)
-        db_session.query(Account).filter(Account.AccNum == accnum).delete()
-    else:
-        raise UndefindBehaviour
+def _delAccount(accnum):
+    acc = db_session.query(Account).filter(Account.AccNum == accnum)
+    if acc.first() is None:
+        raise NotFind
+    acc.delete()
 
 '''
 alter accountinfo

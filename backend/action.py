@@ -15,3 +15,7 @@ def createAccount(acctype, info):
     # try:
     backend.storeprocess.db_session.commit()
     # except:
+
+def delAccount(accnum):
+    backend.storeprocess._delAccount(accnum)
+    backend.storeprocess.db_session.commit()
