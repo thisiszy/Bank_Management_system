@@ -65,3 +65,4 @@ def addUser2Account(ID, accnum):
         backend.storeprocess.db_session.rollback()
         raise UnknownError
 
+# def dataStatistic():

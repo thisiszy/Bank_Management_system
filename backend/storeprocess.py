@@ -503,7 +503,7 @@ def _getLoanStatus(loannum):
 '''
 grant loan by subbranch
 input: info(dict)
-info include PayNum, SubName, LoanNum, PayDate, LoanNumPay
+info include PayNum, SubName, LoanNum, PayDate, Amount
 '''
 def _grantLoan(info):
     if len(info) < len(PayRecord.__table__.columns):
@@ -515,6 +515,7 @@ def _grantLoan(info):
     if db_session.query(Subbranch).filter(Subbranch.SubName == info['SubName']).first() is None:
         raise NotFind('No such subbranch')
     db_session.add(PayRecord(info))
+    _alterBankAsset(info['SubName'], -float(info['Amount']))
 
 '''
 delete loan
