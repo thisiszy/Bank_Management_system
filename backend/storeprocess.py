@@ -88,7 +88,7 @@ def _delUser(id):
         raise NotFind
     try:
         db_session.query(User).filter(User.ID == id).delete()
-    except exec.IntegrityError:
+    except exc.IntegrityError:
         raise Unmodifiable("Can't delete item with foreign key")
 
 '''
