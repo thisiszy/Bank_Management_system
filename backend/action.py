@@ -6,16 +6,21 @@ def importSqlfile(filepath):
 
 def createUser(info):
     backend.storeprocess._createUser(info)
-    # try:
-    backend.storeprocess.db_session.commit()
-    # except:
+    try:
+        backend.storeprocess.db_session.commit()
+    except Exception:
+        backend.storeprocess.db_session.rollback()
 
 def createAccount(acctype, info):
     backend.storeprocess._createAccount(acctype, info)
-    # try:
-    backend.storeprocess.db_session.commit()
-    # except:
+    try:
+        backend.storeprocess.db_session.commit()
+    except Exception:
+        backend.storeprocess.db_session.rollback()
 
 def delAccount(accnum):
     backend.storeprocess._delAccount(accnum)
-    backend.storeprocess.db_session.commit()
+    try:
+        backend.storeprocess.db_session.commit()
+    except Exception:
+        backend.storeprocess.db_session.rollback()

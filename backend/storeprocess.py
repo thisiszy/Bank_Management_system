@@ -218,6 +218,33 @@ def _alterAccount(acctype, accnum, newinfo):
         acc.update(newinfo)
     else:
         raise UndefindBehaviour
+# def _alterAccount(acctype, accnum, newinfo):
+#     if accnum != newinfo['AccNum']:
+#         raise Unmodifiable
+#     if acctype == 'Checking':
+#         if len(newinfo) < len(Checking.__table__.columns):
+#             raise IncompleteData
+#         acc = db_session.query(Checking).filter(Checking.AccNum == accnum)
+#         if acc.first() is None:
+#             raise NotFind('Account not find')
+#         manage = db_session.query(CheckingManagement).filter(CheckingManagement.AccNum == accnum)
+#         if manage.first() is None:
+#             raise NotFind('Account management not find')
+#         acc.update(newinfo)
+#         _alterBankAsset(manage.first().SubName, float(newinfo['Balance'])-acc.first().Balance)
+#     elif acctype == 'Saving':
+#         if len(newinfo) < len(Saving.__table__.columns):
+#             raise IncompleteData
+#         acc = db_session.query(Saving).filter(Saving.AccNum == accnum)
+#         if acc.first() is None:
+#             raise NotFind('Account not find')
+#         manage = db_session.query(SavingManagement).filter(SavingManagement.AccNum == accnum)
+#         if manage.first() is None:
+#             raise NotFind('Account management not find')
+#         _alterBankAsset(manage.first().SubName, float(newinfo['Balance'])-acc.first().Balance)
+#         acc.update(newinfo)
+#     else:
+#         raise UndefindBehaviour
 
 '''
 return explicit accountinfo from Account table
