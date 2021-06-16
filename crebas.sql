@@ -38,9 +38,6 @@ create table Account
 create table Checking
 (
    AccNum               numeric(19,0) not null  comment '',
-   Balance              float(8,2) not null  comment '',
-   LastAccessTime       datetime  comment '',
-   OpenDate             date not null  comment '',
    Overdraft            float(8,2) not null  comment '',
    primary key (AccNum)
 );
@@ -120,9 +117,6 @@ create table Relate
 create table Saving
 (
    AccNum               numeric(19,0) not null  comment '',
-   Balance              float(8,2) not null  comment '',
-   LastAccessTime       datetime  comment '',
-   OpenDate             date not null  comment '',
    Rate                 float not null  comment '',
    CurrencyType         int not null  comment '',
    primary key (AccNum)
@@ -241,3 +235,4 @@ alter table possess add constraint FK_POSSESS_POSSESS_LOAN foreign key (SubName,
 
 alter table possess add constraint FK_POSSESS_POSSESS2_USER foreign key (ID)
       references User (ID) on delete restrict on update restrict;
+

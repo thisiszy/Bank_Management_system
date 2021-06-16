@@ -69,3 +69,8 @@ class OutOfBound(APIException):
     code = 606
     msg = "Amount out of bound"
     error_code = 606
+
+class UnknownError(APIException):
+    code = 607
+    msg = "Fetal error"
+    error_code = 607

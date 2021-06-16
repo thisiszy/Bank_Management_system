@@ -32,9 +32,6 @@ class Checking(Account):
     __tablename__ = 'Checking'
 
     AccNum = Column(ForeignKey('Account.AccNum', ondelete='CASCADE', onupdate='RESTRICT'), primary_key=True)
-    Balance = Column(Float(8), nullable=False)
-    LastAccessTime = Column(DateTime)
-    OpenDate = Column(Date, nullable=False)
     Overdraft = Column(Float(8), nullable=False)
 
 
@@ -42,9 +39,6 @@ class Saving(Account):
     __tablename__ = 'Saving'
 
     AccNum = Column(ForeignKey('Account.AccNum', ondelete='CASCADE', onupdate='RESTRICT'), primary_key=True)
-    Balance = Column(Float(8), nullable=False)
-    LastAccessTime = Column(DateTime)
-    OpenDate = Column(Date, nullable=False)
     Rate = Column(Float, nullable=False)
     CurrencyType = Column(Integer, nullable=False)
 

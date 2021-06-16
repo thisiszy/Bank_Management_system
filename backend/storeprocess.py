@@ -3,7 +3,7 @@ from backend.exceptions import *
 from sqlalchemy import Column, String, create_engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from backend.database import db_session
+from backend.database import db_session, conn
 from sqlalchemy import exc
 
 '''
@@ -159,21 +159,63 @@ info include AccNum, ID, Balance, OpenDate, SubName, Rate, CurrencyType
 def _createAccount(acctype, info):
     if 'LastAccessTime' in info:
         del info['LastAccessTime']
-    # if db_session.query(Account).filter(Account.AccNum == info['AccNum']).first() is not None:
-    #     raise DupId('Duplicated Account number')
+    if db_session.query(Account).filter(Account.AccNum == info['AccNum']).first() is not None:
+        raise DupId
     if acctype == 'Checking':
-        if db_session.query(CheckingManagement).filter(CheckingManagement.ID == info['ID'], CheckingManagement.SubName == info['SubName']).first() is not None:
-            raise DupId('Duplicated Card')
-        db_session.add(Checking(info))
-        db_session.add(CheckingManagement(info))
+        # db_session.add(Checking(info))
+        # db_session.add(CheckingManagement(info))
+        Transactions = conn.begin()
+        conn.execute(
+            """
+            INSERT INTO Account (AccNum, Balance, OpenDate) 
+            VALUES (%s, %s, %s);
+            """,
+            (info['AccNum'], info['Balance'], info['OpenDate'])
+        )
+        conn.execute(
+            '''
+            INSERT INTO Checking (AccNum, Overdraft) 
+            VALUES (%s, %s, %s)
+            ''',
+            (info['AccNum'], info['Overdraft'])
+        )
+        conn.execute(
+            '''
+            INSERT INTO CheckingManagement (ID, SubName, AccNum) 
+            VALUES (%s, %s, %s)
+            ''',
+            (info['ID'], info['SubName'], info['AccNum'])
+        )
     elif acctype == 'Saving':
-        if db_session.query(SavingManagement).filter(SavingManagement.ID == info['ID'], SavingManagement.SubName == info['SubName']).first() is not None:
-            raise DupId('Duplicated Card')
-        db_session.add(Saving(info))
-        db_session.add(SavingManagement(info))
+        # db_session.add(Account(info))
+        # db_session.add(Saving(info))
+        # db_session.add(SavingManagement(info))
+        Transactions = conn.begin()
+        conn.execute(
+            """
+            INSERT INTO Account (AccNum, Balance, OpenDate) 
+            VALUES (%s, %s, %s);
+            """,
+            (info['AccNum'], info['Balance'], info['OpenDate'])
+        )
+        conn.execute(
+            '''
+            INSERT INTO Saving (AccNum, Rate, CurrencyType) 
+            VALUES (%s, %s, %s)
+            ''',
+            (info['AccNum'], info['Rate'], info['CurrencyType'])
+        )
+        conn.execute(
+            '''
+            INSERT INTO SavingManagement (ID, SubName, AccNum) 
+            VALUES (%s, %s, %s)
+            ''',
+            (info['ID'], info['SubName'], info['AccNum'])
+        )
     else:
         raise UndefindBehaviour
     _alterBankAsset(info['SubName'], float(info['Balance']))
+    return Transactions
 
 '''
 delete account
@@ -183,6 +225,12 @@ def _delAccount(accnum):
     acc = db_session.query(Account).filter(Account.AccNum == accnum)
     if acc.first() is None:
         raise NotFind
+    accm = db_session.query(CheckingManagement).filter(CheckingManagement.AccNum == accnum).first()
+    if accm is None:
+        accm = db_session.query(SavingManagement).filter(SavingManagement.AccNum == accnum).first()
+    if accm is None:
+        raise UnknownError
+    _alterBankAsset(accm.SubName, -acc.first().Balance)
     acc.delete()
 
 '''
