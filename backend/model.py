@@ -31,14 +31,14 @@ class Account(Base):
 class Checking(Account):
     __tablename__ = 'Checking'
 
-    AccNum = Column(ForeignKey('Account.AccNum', ondelete='CASCADE', onupdate='RESTRICT'), primary_key=True)
+    AccNum = Column(ForeignKey('Account.AccNum', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True)
     Overdraft = Column(Float(8), nullable=False)
 
 
 class Saving(Account):
     __tablename__ = 'Saving'
 
-    AccNum = Column(ForeignKey('Account.AccNum', ondelete='CASCADE', onupdate='RESTRICT'), primary_key=True)
+    AccNum = Column(ForeignKey('Account.AccNum', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True)
     Rate = Column(Float, nullable=False)
     CurrencyType = Column(Integer, nullable=False)
 
@@ -91,7 +91,7 @@ class CheckingManagement(Base):
 
     ID = Column(ForeignKey('User.ID', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True, nullable=False)
     SubName = Column(ForeignKey('Subbranch.SubName', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True, nullable=False, index=True)
-    AccNum = Column(ForeignKey('Checking.AccNum', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False, index=True)
+    AccNum = Column(ForeignKey('Checking.AccNum', ondelete='RESTRICT', onupdate='RESTRICT'), nullable=False, index=True)
 
     Checking = relationship('Checking')
     User = relationship('User')
@@ -119,7 +119,7 @@ class SavingManagement(Base):
 
     ID = Column(ForeignKey('User.ID', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True, nullable=False)
     SubName = Column(ForeignKey('Subbranch.SubName', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True, nullable=False, index=True)
-    AccNum = Column(ForeignKey('Saving.AccNum', ondelete='CASCADE', onupdate='RESTRICT'), nullable=False, index=True)
+    AccNum = Column(ForeignKey('Saving.AccNum', ondelete='RESTRICT', onupdate='RESTRICT'), nullable=False, index=True)
 
     Saving = relationship('Saving')
     User = relationship('User')

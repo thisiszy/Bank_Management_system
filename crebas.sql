@@ -183,10 +183,10 @@ create table possess
 );
 
 alter table Checking add constraint FK_CHECKING_INHERITAN_ACCOUNT foreign key (AccNum)
-      references Account (AccNum) on delete cascade on update restrict;
+      references Account (AccNum) on delete restrict on update restrict;
 
 alter table CheckingManagement add constraint FK_CHECKING_MANAGECHE_CHECKING foreign key (AccNum)
-      references Checking (AccNum) on delete cascade on update restrict;
+      references Checking (AccNum) on delete restrict on update restrict;
 
 alter table CheckingManagement add constraint FK_CHECKING_RELATIONS_SUBBRANC foreign key (SubName)
       references Subbranch (SubName) on delete restrict on update restrict;
@@ -216,10 +216,10 @@ alter table Relate add constraint FK_RELATE_RELATE2_USER foreign key (ID)
       references User (ID) on delete restrict on update restrict;
 
 alter table Saving add constraint FK_SAVING_INHERITAN_ACCOUNT foreign key (AccNum)
-      references Account (AccNum) on delete cascade on update restrict;
+      references Account (AccNum) on delete restrict on update restrict;
 
 alter table SavingManagement add constraint FK_SAVINGMA_MANAGESAV_SAVING foreign key (AccNum)
-      references Saving (AccNum) on delete cascade on update restrict;
+      references Saving (AccNum) on delete restrict on update restrict;
 
 alter table SavingManagement add constraint FK_SAVINGMA_RELATIONS_USER foreign key (ID)
       references User (ID) on delete restrict on update restrict;

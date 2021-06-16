@@ -161,59 +161,67 @@ def _createAccount(acctype, info):
         del info['LastAccessTime']
     if db_session.query(Account).filter(Account.AccNum == info['AccNum']).first() is not None:
         raise DupId
-    if acctype == 'Checking':
-        # db_session.add(Checking(info))
-        # db_session.add(CheckingManagement(info))
-        Transactions = conn.begin()
-        conn.execute(
-            """
-            INSERT INTO Account (AccNum, Balance, OpenDate) 
-            VALUES (%s, %s, %s);
-            """,
-            (info['AccNum'], info['Balance'], info['OpenDate'])
-        )
-        conn.execute(
-            '''
-            INSERT INTO Checking (AccNum, Overdraft) 
-            VALUES (%s, %s, %s)
-            ''',
-            (info['AccNum'], info['Overdraft'])
-        )
-        conn.execute(
-            '''
-            INSERT INTO CheckingManagement (ID, SubName, AccNum) 
-            VALUES (%s, %s, %s)
-            ''',
-            (info['ID'], info['SubName'], info['AccNum'])
-        )
-    elif acctype == 'Saving':
-        # db_session.add(Account(info))
-        # db_session.add(Saving(info))
-        # db_session.add(SavingManagement(info))
-        Transactions = conn.begin()
-        conn.execute(
-            """
-            INSERT INTO Account (AccNum, Balance, OpenDate) 
-            VALUES (%s, %s, %s);
-            """,
-            (info['AccNum'], info['Balance'], info['OpenDate'])
-        )
-        conn.execute(
-            '''
-            INSERT INTO Saving (AccNum, Rate, CurrencyType) 
-            VALUES (%s, %s, %s)
-            ''',
-            (info['AccNum'], info['Rate'], info['CurrencyType'])
-        )
-        conn.execute(
-            '''
-            INSERT INTO SavingManagement (ID, SubName, AccNum) 
-            VALUES (%s, %s, %s)
-            ''',
-            (info['ID'], info['SubName'], info['AccNum'])
-        )
-    else:
-        raise UndefindBehaviour
+    try:
+        if acctype == 'Checking':
+            # db_session.add(Checking(info))
+            # db_session.add(CheckingManagement(info))
+            if db_session.query(CheckingManagement).filter(CheckingManagement.ID == info['ID'], CheckingManagement.SubName == info['SubName']).first() is not None:
+                raise DupId('Duplicated account in same subbranch')
+            Transactions = conn.begin()
+            conn.execute(
+                """
+                INSERT INTO Account (AccNum, Balance, OpenDate) 
+                VALUES (%s, %s, %s);
+                """,
+                (info['AccNum'], info['Balance'], info['OpenDate'])
+            )
+            conn.execute(
+                '''
+                INSERT INTO Checking (AccNum, Overdraft) 
+                VALUES (%s, %s)
+                ''',
+                (info['AccNum'], info['Overdraft'])
+            )
+            conn.execute(
+                '''
+                INSERT INTO CheckingManagement (ID, SubName, AccNum) 
+                VALUES (%s, %s, %s)
+                ''',
+                (info['ID'], info['SubName'], info['AccNum'])
+            )
+        elif acctype == 'Saving':
+            # db_session.add(Account(info))
+            # db_session.add(Saving(info))
+            # db_session.add(SavingManagement(info))
+            if db_session.query(SavingManagement).filter(SavingManagement.ID == info['ID'], SavingManagement.SubName == info['SubName']).first() is not None:
+                raise DupId('Duplicated account in same subbranch')
+            Transactions = conn.begin()
+            conn.execute(
+                """
+                INSERT INTO Account (AccNum, Balance, OpenDate) 
+                VALUES (%s, %s, %s);
+                """,
+                (info['AccNum'], info['Balance'], info['OpenDate'])
+            )
+            conn.execute(
+                '''
+                INSERT INTO Saving (AccNum, Rate, CurrencyType) 
+                VALUES (%s, %s, %s)
+                ''',
+                (info['AccNum'], info['Rate'], info['CurrencyType'])
+            )
+            conn.execute(
+                '''
+                INSERT INTO SavingManagement (ID, SubName, AccNum) 
+                VALUES (%s, %s, %s)
+                ''',
+                (info['ID'], info['SubName'], info['AccNum'])
+            )
+        else:
+            raise UndefindBehaviour
+    except KeyError:
+        Transactions.rollback()
+        raise IncompleteData
     _alterBankAsset(info['SubName'], float(info['Balance']))
     return Transactions
 
@@ -281,6 +289,25 @@ def _alterAccount(acctype, accnum, newinfo):
         accparent.update(accparentinfo)
     else:
         raise UndefindBehaviour
+
+'''
+add a user to count
+input ID(str), accnum(str)
+'''
+def _addUser2Account(ID, accnum):
+    if db_session.query(User).filter(User.ID == ID).first() is None:
+        raise NotFind('Not find user')
+    acctype = _getAccountType(accnum)
+    if acctype == 'Saving':
+        acc = db_session.query(SavingManagement).filter(SavingManagement.AccNum == accnum).first()
+        if db_session.query(CheckingManagement).filter(SavingManagement.ID == ID, SavingManagement.SubName == acc.SubName).first() is not None:
+            raise DupId
+        db_session.add(SavingManagement({'ID':ID, 'AccNum':accnum, 'SubName':acc.SubName}))
+    elif acctype == 'Checking':
+        acc = db_session.query(CheckingManagement).filter(CheckingManagement.AccNum == accnum).first() 
+        if db_session.query(CheckingManagement).filter(CheckingManagement.ID == ID, CheckingManagement.SubName == acc.SubName).first() is not None:
+            raise DupId
+        db_session.add(CheckingManagement({'ID':ID, 'AccNum':accnum, 'SubName':acc.SubName}))
 
 def _getAccountType(accnum):
     if db_session.query(Checking).filter(Checking.AccNum == accnum).first() is not None:
@@ -501,3 +528,42 @@ def _delLoan(id):
     if _getLoanStatus(id) == 'ING':
         raise PermissionDenied
     l.delete()
+
+'''
+get saving account by a special subbranch
+input: subname(str)
+return Account object list
+'''
+def _getSavingAccountBySubName(subname):
+    if db_session.query(Subbranch).filter(Subbranch.SubName == subname).first() is None:
+        raise NotFind
+    return db_session.query(Saving).join(SavingManagement).filter(SavingManagement.SubName == subname).all()
+
+'''
+get saving total by a special subbranch
+input: subname(str)
+return float
+'''
+def _getSavingNumBySubName(subname):
+    saving = _getSavingAccountBySubName(subname)
+    return sum([account.Balance for account in saving])
+
+'''
+get checking account by a special subbranch
+input: subname(str)
+return Account object list
+'''
+def _getCheckingAccountBySubName(subname):
+    if db_session.query(Subbranch).filter(Subbranch.SubName == subname).first() is None:
+        raise NotFind
+    return db_session.query(Checking).join(CheckingManagement).filter(CheckingManagement.SubName == subname).all()
+
+'''
+get checking total by a special subbranch
+input: subname(str)
+return float
+'''
+def _getCheckingNumBySubName(subname):
+    checking = _getCheckingAccountBySubName(subname)
+    return sum([account.Balance for account in checking])
+

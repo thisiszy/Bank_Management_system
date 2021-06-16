@@ -1,5 +1,5 @@
 import backend.storeprocess
-from sqlalchemy import exc
+import sqlalchemy
 from backend.exceptions import *
 
 def importSqlfile(filepath):
@@ -11,6 +11,7 @@ def createUser(info):
         backend.storeprocess.db_session.commit()
     except Exception:
         backend.storeprocess.db_session.rollback()
+        raise UnknownError
 
 def alterUser(id, newinfo):
     backend.storeprocess._alterUser(id, newinfo)
@@ -18,6 +19,7 @@ def alterUser(id, newinfo):
         backend.storeprocess.db_session.commit()
     except Exception:
         backend.storeprocess.db_session.rollback()
+        raise UnknownError
 
 def delUser(id):
     backend.storeprocess._delUser(id)
@@ -25,6 +27,7 @@ def delUser(id):
         backend.storeprocess.db_session.commit()
     except Exception:
         backend.storeprocess.db_session.rollback()
+        raise UnknownError
 
 def createAccount(acctype, info):
     Transactions = backend.storeprocess._createAccount(acctype, info)
@@ -34,7 +37,7 @@ def createAccount(acctype, info):
     except Exception:
         Transactions.rollback()
         backend.storeprocess.db_session.rollback()
-        raise Exception
+        raise UnknownError
 
 def delAccount(accnum):
     backend.storeprocess._delAccount(accnum)
@@ -42,6 +45,7 @@ def delAccount(accnum):
         backend.storeprocess.db_session.commit()
     except Exception:
         backend.storeprocess.db_session.rollback()
+        raise UnknownError
 
 def alterAccount(accnum, newinfo):
     newinfo['AccNum'] = accnum
@@ -51,3 +55,13 @@ def alterAccount(accnum, newinfo):
         backend.storeprocess.db_session.commit()
     except Exception:
         backend.storeprocess.db_session.rollback()
+        raise UnknownError
+
+def addUser2Account(ID, accnum):
+    backend.storeprocess._addUser2Account(ID, accnum)
+    try:
+        backend.storeprocess.db_session.commit()
+    except Exception:
+        backend.storeprocess.db_session.rollback()
+        raise UnknownError
+
