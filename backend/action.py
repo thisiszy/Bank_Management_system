@@ -42,3 +42,12 @@ def delAccount(accnum):
         backend.storeprocess.db_session.commit()
     except Exception:
         backend.storeprocess.db_session.rollback()
+
+def alterAccount(accnum, newinfo):
+    newinfo['AccNum'] = accnum
+    acctype = backend.storeprocess._getAccountType(accnum)
+    backend.storeprocess._alterAccount(acctype, accnum, newinfo)
+    try:
+        backend.storeprocess.db_session.commit()
+    except Exception:
+        backend.storeprocess.db_session.rollback()
