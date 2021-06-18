@@ -32,6 +32,9 @@ def delUser(id):
         backend.storeprocess.db_session.rollback()
         raise UnknownError
 
+def getAllUser():
+    return backend.storeprocess._getAllUserInfo()
+
 def createAccount(acctype, info):
     Transactions = backend.storeprocess._createAccount(acctype, info)
     try:

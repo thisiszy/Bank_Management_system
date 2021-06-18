@@ -19,21 +19,6 @@ from flask import Flask, jsonify, request
 def shutdown_session(exception=None):
     db_session.remove()
 
-# @app.route('/books', methods=['GET', 'POST'])
-# def all_books():
-#     response_object = {'status': 'success'}
-#     if request.method == 'POST':
-#         post_data = request.get_json()
-#         BOOKS.append({
-#             'title': post_data.get('title'),
-#             'author': post_data.get('author'),
-#             'read': post_data.get('read')
-#         })
-#         response_object['message'] = 'Book added!'
-#     else:
-#         response_object['books'] = BOOKS
-#     return jsonify(response_object)
-
 @app.route('/workers', methods=['GET'])
 def allWorkers():
     response_object = {'status': 'success'}
@@ -68,9 +53,19 @@ def userLogic():
         })
         response_object['message'] = 'User added!'
     else:
-        workers = getAllWorkerInfo()
-        response_object['workers'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in workers]
+        users = getAllUser()
+        response_object['users'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in users]
+        print(response_object['users'])
     return jsonify(response_object)
+
+@app.route('/deluser', methods=['POST'])
+def delUserLogic():
+    response_object = {'status': 'success'}
+    if request.method == 'POST':
+        post_data = request.get_json()
+        delUser(post_data.get('ID'))
+        response_object['message'] = 'User deleted!'
+        return jsonify(response_object)
 
 # sanity check route
 @app.route('/ping', methods=['GET'])
