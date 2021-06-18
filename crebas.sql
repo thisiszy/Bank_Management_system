@@ -47,8 +47,8 @@ create table Checking
 /*==============================================================*/
 create table CheckingManagement
 (
-   ID                   numeric(18,0) not null  comment '',
-   SubName              varchar(20) not null  comment '',
+   ID                   char(18) not null  comment '',
+   SubName              varchar(50) not null  comment '',
    AccNum               numeric(19,0) not null  comment '',
    primary key (ID, SubName)
 );
@@ -58,9 +58,9 @@ create table CheckingManagement
 /*==============================================================*/
 create table Department
 (
-   SubName              varchar(20) not null  comment '',
+   SubName              varchar(50) not null  comment '',
    DepartNum            numeric(8,0) not null  comment '',
-   DepartName           varchar(20)  comment '',
+   DepartName           varchar(50)  comment '',
    DepartType           int  comment '',
    primary key (SubName, DepartNum)
 );
@@ -70,7 +70,7 @@ create table Department
 /*==============================================================*/
 create table Loan
 (
-   SubName              varchar(20) not null  comment '',
+   SubName              varchar(50) not null  comment '',
    Budget               float(8,2) not null  comment '',
    LoanNum              numeric(8,0) not null  comment '',
    primary key (SubName, LoanNum)
@@ -81,8 +81,8 @@ create table Loan
 /*==============================================================*/
 create table Manager
 (
-   WorkerID             numeric(18,0) not null  comment '',
-   SubName              varchar(20) not null  comment '',
+   WorkerID             char(18) not null  comment '',
+   SubName              varchar(50) not null  comment '',
    DepartNum            numeric(8,0) not null  comment '',
    primary key (WorkerID)
 );
@@ -105,8 +105,8 @@ create table PayRecord
 /*==============================================================*/
 create table Relate
 (
-   WorkerID             numeric(18,0) not null  comment '',
-   ID                   numeric(18,0) not null  comment '',
+   WorkerID             char(18) not null  comment '',
+   ID                   char(18) not null  comment '',
    Role                 bool  comment '',
    primary key (WorkerID, ID)
 );
@@ -127,8 +127,8 @@ create table Saving
 /*==============================================================*/
 create table SavingManagement
 (
-   ID                   numeric(18,0) not null  comment '',
-   SubName              varchar(20) not null  comment '',
+   ID                   char(18) not null  comment '',
+   SubName              varchar(50) not null  comment '',
    AccNum               numeric(19,0) not null  comment '',
    primary key (ID, SubName)
 );
@@ -138,9 +138,9 @@ create table SavingManagement
 /*==============================================================*/
 create table Subbranch
 (
-   SubName              varchar(20) not null  comment '',
+   SubName              varchar(50) not null  comment '',
    SubAssets            float(8,2)  comment '',
-   City                 varchar(20)  comment '',
+   City                 varchar(50)  comment '',
    primary key (SubName)
 );
 
@@ -149,11 +149,11 @@ create table Subbranch
 /*==============================================================*/
 create table User
 (
-   ID                   numeric(18,0) not null  comment '',
+   ID                   char(18) not null  comment '',
    Address              text  comment '',
    ContectName          varchar(20) not null  comment '',
    ContectTel           numeric(11,0) not null  comment '',
-   ContectEmail         varchar(20) not null  comment '',
+   ContectEmail         varchar(50) not null  comment '',
    Relationship         varchar(20) not null  comment '',
    primary key (ID)
 );
@@ -163,9 +163,9 @@ create table User
 /*==============================================================*/
 create table Worker
 (
-   SubName              varchar(20) not null  comment '',
+   SubName              varchar(50) not null  comment '',
    DepartNum            numeric(8,0) not null  comment '',
-   WorkerID             numeric(18,0) not null  comment '',
+   WorkerID             char(18) not null  comment '',
    WorkerAddr           text  comment '',
    StartDate            date  comment '',
    primary key (WorkerID)
@@ -178,7 +178,7 @@ create table possess
 (
    SubName              varchar(20) not null  comment '',
    LoanNum              numeric(8,0) not null  comment '',
-   ID                   numeric(18,0) not null  comment '',
+   ID                   char(18) not null  comment '',
    primary key (LoanNum, ID)
 );
 

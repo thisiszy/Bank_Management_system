@@ -5,6 +5,9 @@ from backend.exceptions import *
 def importSqlfile(filepath):
     backend.storeprocess._importSqlfile(filepath)
 
+def getAllWorkerInfo():
+    return backend.storeprocess._getAllWorkerInfo()
+
 def createUser(info):
     backend.storeprocess._createUser(info)
     try:

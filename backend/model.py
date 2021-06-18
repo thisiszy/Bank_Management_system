@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DECIMAL, Date, DateTime, Float, ForeignKey, ForeignKeyConstraint, Index, Integer, String, Table, Text
+from sqlalchemy import CHAR, Column, DECIMAL, Date, DateTime, Float, ForeignKey, ForeignKeyConstraint, Index, Integer, String, Table, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import TINYINT
 from sqlalchemy.ext.declarative import declarative_base
@@ -46,19 +46,19 @@ class Saving(Account):
 class Subbranch(Base):
     __tablename__ = 'Subbranch'
 
-    SubName = Column(String(20), primary_key=True)
+    SubName = Column(String(50), primary_key=True)
     SubAssets = Column(Float(8))
-    City = Column(String(20))
+    City = Column(String(50))
 
 
 class User(Base):
     __tablename__ = 'User'
 
-    ID = Column(DECIMAL(18, 0), primary_key=True)
+    ID = Column(CHAR(18), primary_key=True)
     Address = Column(Text)
     ContectName = Column(String(20), nullable=False)
     ContectTel = Column(DECIMAL(11, 0), nullable=False)
-    ContectEmail = Column(String(20), nullable=False)
+    ContectEmail = Column(String(50), nullable=False)
     Relationship = Column(String(20), nullable=False)
 
     Loan = relationship('Loan', secondary='possess')
@@ -69,7 +69,7 @@ class Department(Base):
 
     SubName = Column(ForeignKey('Subbranch.SubName', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True, nullable=False)
     DepartNum = Column(DECIMAL(8, 0), primary_key=True, nullable=False)
-    DepartName = Column(String(20))
+    DepartName = Column(String(50))
     DepartType = Column(Integer)
 
     Subbranch = relationship('Subbranch')
@@ -133,9 +133,9 @@ class Worker(Base):
         Index('FK_WORKER_RELATIONS_DEPARTME', 'SubName', 'DepartNum')
     )
 
-    SubName = Column(String(20), nullable=False)
+    SubName = Column(String(50), nullable=False)
     DepartNum = Column(DECIMAL(8, 0), nullable=False)
-    WorkerID = Column(DECIMAL(18, 0), primary_key=True)
+    WorkerID = Column(CHAR(18), primary_key=True)
     WorkerAddr = Column(Text)
     StartDate = Column(Date)
 
@@ -155,7 +155,7 @@ t_possess = Table(
 t_Manager = Table(
     'Manager', metadata,
     Column('WorkerID', ForeignKey('Worker.WorkerID', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True),
-    Column('SubName', String(20), nullable=False),
+    Column('SubName', String(50), nullable=False),
     Column('DepartNum', DECIMAL(8, 0), nullable=False),
     ForeignKeyConstraint(['SubName', 'DepartNum'], ['Department.SubName', 'Department.DepartNum'], ondelete='RESTRICT', onupdate='RESTRICT'),
     Index('FK_MANAGER_MANAGE_DEPARTME', 'SubName', 'DepartNum')
