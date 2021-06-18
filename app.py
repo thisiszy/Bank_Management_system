@@ -58,6 +58,25 @@ def userLogic():
         print(response_object['users'])
     return jsonify(response_object)
 
+@app.route('/alteruser', methods=['POST'])
+def userAlterLogic():
+    response_object = {'status': 'success'}
+    if request.method == 'POST':
+        post_data = request.get_json()
+        alterUser(
+            post_data.get('ID'),
+            {
+            'ID': post_data.get('ID'),
+            'Address': post_data.get('Address'),
+            'ContectName': post_data.get('ContectName'),
+            'ContectTel': post_data.get('ContectTel'),
+            'ContectEmail': post_data.get('ContectEmail'),
+            'Relationship': post_data.get('Relationship'),
+            }
+        )
+        response_object['message'] = 'User altered!'
+        return jsonify(response_object)
+
 @app.route('/deluser', methods=['POST'])
 def delUserLogic():
     response_object = {'status': 'success'}
