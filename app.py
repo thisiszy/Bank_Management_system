@@ -53,9 +53,19 @@ def userLogic():
         })
         response_object['message'] = 'User added!'
     else:
-        users = getAllUser()
-        response_object['users'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in users]
-        print(response_object['users'])
+        if request.args.get("type") == "0":
+            users = getAllUser()
+            response_object['users'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in users]
+        elif request.args.get("type") == "1":
+            users = getUserByID(request.args.get("content"))
+            if users is not None:
+                response_object['users'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in users]
+        elif request.args.get("type") == "2":
+            users = getUserByAccount(request.args.get("content"))
+            if users is not None:
+                response_object['users'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in users]
+        else:
+            response_object['message'] = 'get error!'
     return jsonify(response_object)
 
 @app.route('/alteruser', methods=['POST'])

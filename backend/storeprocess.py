@@ -117,7 +117,27 @@ return explicit userinfo from User table
 input: id(str)
 '''
 def _getUserbyID(id):
-    t = db_session.query(User).filter(User.ID == id)
+    if id == '':
+        raise UndefindBehaviour
+    t = db_session.query(User).filter(User.ID.like('%'+id+'%'))
+    if t is None:
+        raise NotFind
+    return t
+
+'''
+return explicit userinfo from User table
+input: accnum(str)
+'''
+def _getUserbyAccount(accnum):
+    if accnum == '':
+        raise UndefindBehaviour
+    type = _getAccountType(accnum)
+    if type == 'Checking':
+        a = db_session.query(CheckingManagement).filter(CheckingManagement.AccNum.like('%'+accnum+'%'))
+        t = db_session.query(User).filter(User.ID == a.ID)
+    else:
+        a = db_session.query(SavingManagement).filter(SavingManagement.AccNum.like('%'+accnum+'%'))
+        t = db_session.query(User).filter(User.ID == a.ID)
     if t is None:
         raise NotFind
     return t
@@ -309,6 +329,11 @@ def _addUser2Account(ID, accnum):
             raise DupId
         db_session.add(CheckingManagement({'ID':ID, 'AccNum':accnum, 'SubName':acc.SubName}))
 
+'''
+get account type
+input accnum(str)
+return 'Checking' or 'Saving'
+'''
 def _getAccountType(accnum):
     if db_session.query(Checking).filter(Checking.AccNum == accnum).first() is not None:
         return 'Checking'
@@ -318,7 +343,7 @@ def _getAccountType(accnum):
         raise NotFind
 
 '''
-return explicit accountinfo from Account table
+return explicit accountinfo from Checking or Saving table
 input: acctype(str), accnum(str)
 acctype == 'Checking' or 'Saving'
 '''
