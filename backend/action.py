@@ -125,8 +125,23 @@ def getPaied4Loan(loannum):
 
 def delLoan(loannum):
     return backend.storeprocess._delLoan(loannum)
+    try:
+        backend.storeprocess.db_session.commit()
+    except Exception:
+        backend.storeprocess.db_session.rollback()
+        raise UnknownError
 
 def getLoanStatus(loannum):
     return backend.storeprocess._getLoanStatus(loannum)
+
+def payForLoan(info):
+    loaninfo = backend.storeprocess._getLoanByLoanNum(info['LoanNum'])
+    info['SubName'] = loaninfo.SubName
+    backend.storeprocess._grantLoan(info)
+    try:
+        backend.storeprocess.db_session.commit()
+    except Exception:
+        backend.storeprocess.db_session.rollback()
+        raise UnknownError
 
 # def dataStatistic():

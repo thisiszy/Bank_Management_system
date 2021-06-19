@@ -520,6 +520,8 @@ def _getLoanStatus(loannum):
         return 'IDLE'
     elif l.Budget > paied:
         return 'ING'
+    elif l.Budget == paied:
+        return 'DONE'
     else:
         raise UndefindBehaviour
 
@@ -537,6 +539,8 @@ def _grantLoan(info):
         raise NotFind('No such Loan')
     if db_session.query(Subbranch).filter(Subbranch.SubName == info['SubName']).first() is None:
         raise NotFind('No such subbranch')
+    if _getPaiedForLoan(info['LoanNum']) + float(info['Amount']) > _getLoanByLoanNum(info['LoanNum']).Budget:
+        raise OutOfBound
     db_session.add(PayRecord(info))
     _alterBankAsset(info['SubName'], -float(info['Amount']))
 
@@ -547,10 +551,12 @@ id is LoanNum
 '''
 def _delLoan(id):
     l = db_session.query(Loan).filter(Loan.LoanNum == id)
+    pay = db_session.query(PayRecord).filter(PayRecord.LoanNum == id)
     if l.first() is None:
         raise NotFind
     if _getLoanStatus(id) == 'ING':
         raise PermissionDenied
+    pay.delete()
     l.delete()
 
 '''

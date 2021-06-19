@@ -207,7 +207,6 @@ def loanLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json()
-        print(post_data)
         createLoan({
             'LoanNum': post_data.get('LoanNum'),
             'Budget': post_data.get('Budget'),
@@ -225,7 +224,6 @@ def loanLogic():
         elif request.args.get("type") == "2":
             loans = getLoanByNum(request.args.get("content"))
             response_object['loans'] = [dict({"Status":getLoanStatus(loans.LoanNum), "Paied":getPaied4Loan(loans.LoanNum)}, **{ k: str(v) for k, v in loans.to_dict().items() })]
-            print(response_object['loans'])
         else:
             response_object['message'] = 'get error!'
     return jsonify(response_object)
@@ -236,6 +234,20 @@ def delLoanLogic():
     if request.method == 'POST':
         post_data = request.get_json()
         delLoan(post_data.get('LoanNum'))
+        response_object['message'] = 'Loan deleted!'
+        return jsonify(response_object)
+
+@app.route('/grantloan', methods=['POST'])
+def grantLoanLogic():
+    response_object = {'status': 'success'}
+    if request.method == 'POST':
+        post_data = request.get_json()
+        payForLoan({
+            'PayNum': post_data.get('PayNum'),
+            'LoanNum': post_data.get('LoanNum'),
+            'PayDate': post_data.get('PayDate'),
+            'Amount': post_data.get('Amount'),
+        })
         response_object['message'] = 'Loan deleted!'
         return jsonify(response_object)
 
