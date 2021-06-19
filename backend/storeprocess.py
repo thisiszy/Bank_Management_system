@@ -481,8 +481,6 @@ input: loannum(str)
 '''
 def _getLoanByLoanNum(loannum):
     t = db_session.query(Loan).filter(Loan.LoanNum == loannum).first()
-    if t is None:
-        raise NotFind
     return t
 
 '''
@@ -491,8 +489,6 @@ input: id(str)
 '''
 def _getAllLoanByID(id):
     t = db_session.query(User).filter(User.ID == id).first()
-    if t is None:
-        raise NotFind
     return t.Loan
 
 '''

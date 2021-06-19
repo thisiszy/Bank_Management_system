@@ -42,7 +42,6 @@ def userLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json()
-        print(post_data)
         createUser({
             'ID': post_data.get('ID'),
             'Address': post_data.get('Address'),
@@ -202,6 +201,34 @@ def accAlterLogic():
         )
         response_object['message'] = 'Account altered!'
         return jsonify(response_object)
+
+@app.route('/loan', methods=['GET', 'POST'])
+def loanLogic():
+    response_object = {'status': 'success'}
+    if request.method == 'POST':
+        post_data = request.get_json()
+        print(post_data)
+        createLoan({
+            'LoanNum': post_data.get('LoanNum'),
+            'Budget': post_data.get('Budget'),
+            'SubName': post_data.get('SubName'),
+        }, 
+        post_data.get('ID'))
+        response_object['message'] = 'Loan added!'
+    else:
+        if request.args.get("type") == "0":
+            loans = getAllLoan()
+            response_object['loans'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in loans]
+        elif request.args.get("type") == "1":
+            loans = getLoanByID(request.args.get("content"))
+            response_object['loans'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in loans]
+        elif request.args.get("type") == "2":
+            loans = getLoanByNum(request.args.get("content"))
+            response_object['loans'] = [{ k: str(v) for k, v in loans.to_dict().items() }]
+            print(response_object['loans'])
+        else:
+            response_object['message'] = 'get error!'
+    return jsonify(response_object)
 
 # sanity check route
 @app.route('/ping', methods=['GET'])

@@ -102,5 +102,22 @@ def addUser2Account(id, accnum):
     except Exception:
         backend.storeprocess.db_session.rollback()
         raise UnknownError
-        
+
+def createLoan(info, userlist):
+    backend.storeprocess._createLoan(info, userlist)
+    try:
+        backend.storeprocess.db_session.commit()
+    except Exception:
+        backend.storeprocess.db_session.rollback()
+        raise UnknownError
+
+def getAllLoan():
+    return backend.storeprocess._getAllLoan()
+
+def getLoanByNum(num):
+    return backend.storeprocess._getLoanByLoanNum(num)
+
+def getLoanByID(id):
+    return backend.storeprocess._getAllLoanByID(id)
+
 # def dataStatistic():
