@@ -146,8 +146,8 @@ t_possess = Table(
     'possess', metadata,
     Column('SubName', String(20), nullable=False),
     Column('LoanNum', DECIMAL(8, 0), primary_key=True, nullable=False),
-    Column('ID', ForeignKey('User.ID', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True, nullable=False, index=True),
-    ForeignKeyConstraint(['SubName', 'LoanNum'], ['Loan.SubName', 'Loan.LoanNum'], ondelete='RESTRICT', onupdate='RESTRICT'),
+    Column('ID', ForeignKey('User.ID', ondelete='CASCADE', onupdate='RESTRICT'), primary_key=True, nullable=False, index=True),
+    ForeignKeyConstraint(['SubName', 'LoanNum'], ['Loan.SubName', 'Loan.LoanNum'], ondelete='CASCADE', onupdate='RESTRICT'),
     Index('FK_POSSESS_POSSESS_LOAN', 'SubName', 'LoanNum')
 )
 

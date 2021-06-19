@@ -124,7 +124,7 @@ def getPaied4Loan(loannum):
     return backend.storeprocess._getPaiedForLoan(loannum)
 
 def delLoan(loannum):
-    return backend.storeprocess._delLoan(loannum)
+    backend.storeprocess._delLoan(loannum)
     try:
         backend.storeprocess.db_session.commit()
     except Exception:

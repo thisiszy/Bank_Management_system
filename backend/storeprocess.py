@@ -552,6 +552,8 @@ id is LoanNum
 def _delLoan(id):
     l = db_session.query(Loan).filter(Loan.LoanNum == id)
     pay = db_session.query(PayRecord).filter(PayRecord.LoanNum == id)
+    # print(pay)
+    # print(l)
     if l.first() is None:
         raise NotFind
     if _getLoanStatus(id) == 'ING':

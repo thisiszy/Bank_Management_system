@@ -231,8 +231,8 @@ alter table Worker add constraint FK_WORKER_RELATIONS_DEPARTME foreign key (SubN
       references Department (SubName, DepartNum) on delete restrict on update restrict;
 
 alter table possess add constraint FK_POSSESS_POSSESS_LOAN foreign key (SubName, LoanNum)
-      references Loan (SubName, LoanNum) on delete restrict on update restrict;
+      references Loan (SubName, LoanNum) on delete cascade on update restrict;
 
 alter table possess add constraint FK_POSSESS_POSSESS2_USER foreign key (ID)
-      references User (ID) on delete restrict on update restrict;
+      references User (ID) on delete cascade on update restrict;
 
