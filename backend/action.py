@@ -83,4 +83,24 @@ def addUser2Account(ID, accnum):
         backend.storeprocess.db_session.rollback()
         raise UnknownError
 
+def getAllAccount():
+    return backend.storeprocess._getAllAccountInfo('Saving') + backend.storeprocess._getAllAccountInfo('Checking')
+
+def getAccountType(accnum):
+    return backend.storeprocess._getAccountType(accnum)
+
+def getAccountByID(id):
+    return backend.storeprocess._getAccountByID('Saving', id) + backend.storeprocess._getAccountByID('Checking', id)
+
+def getAccountBySub(subname):
+    return backend.storeprocess._getAllAccountBySubName('Saving', subname) + backend.storeprocess._getAllAccountBySubName('Checking', subname)
+
+def addUser2Account(id, accnum):
+    backend.storeprocess._addUser2Account(id, accnum)
+    try:
+        backend.storeprocess.db_session.commit()
+    except Exception:
+        backend.storeprocess.db_session.rollback()
+        raise UnknownError
+        
 # def dataStatistic():

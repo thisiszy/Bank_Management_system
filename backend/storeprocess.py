@@ -174,7 +174,7 @@ def _alterRelate(newinfo):
 add account
 input: acctype(str), info(dict)
 acctype == 'Checking' or 'Saving'
-info include AccNum, ID, Balance, OpenDate, SubName, Rate, CurrencyType
+info include AccNum, ID, Balance, OpenDate, SubName, Rate, CurrencyType, Overdraft
 '''
 def _createAccount(acctype, info):
     if 'LastAccessTime' in info:
@@ -253,12 +253,16 @@ def _delAccount(accnum):
     acc = db_session.query(Account).filter(Account.AccNum == accnum)
     if acc.first() is None:
         raise NotFind
-    accm = db_session.query(CheckingManagement).filter(CheckingManagement.AccNum == accnum).first()
-    if accm is None:
-        accm = db_session.query(SavingManagement).filter(SavingManagement.AccNum == accnum).first()
-    if accm is None:
-        raise UnknownError
-    _alterBankAsset(accm.SubName, -acc.first().Balance)
+    type = _getAccountType(accnum)
+    if type == 'Checking':
+        accm = db_session.query(CheckingManagement).filter(CheckingManagement.AccNum == accnum)
+        accn = db_session.query(Checking).filter(Checking.AccNum == accnum)
+    else:
+        accm = db_session.query(SavingManagement).filter(SavingManagement.AccNum == accnum)
+        accn = db_session.query(Saving).filter(Saving.AccNum == accnum)
+    _alterBankAsset(accm.first().SubName, -acc.first().Balance)
+    accm.delete()
+    accn.delete()
     acc.delete()
 
 '''
@@ -311,7 +315,7 @@ def _alterAccount(acctype, accnum, newinfo):
         raise UndefindBehaviour
 
 '''
-add a user to count
+add a user to acount
 input ID(str), accnum(str)
 '''
 def _addUser2Account(ID, accnum):
@@ -365,9 +369,9 @@ acctype == 'Checking' or 'Saving'
 '''
 def _getAllAccountInfo(acctype):
     if acctype == 'Checking':
-        t = db_session.query(Checking).all()
+        t = db_session.query(Checking, Account).all()
     elif acctype == 'Saving':
-        t = db_session.query(Saving).all()
+        t = db_session.query(Saving, Account).all()
     else:
         raise UndefindBehaviour
     return t
@@ -379,13 +383,13 @@ acctype == 'Checking' or 'Saving'
 '''
 def _getAllAccountBySubName(acctype, subname):
     if acctype == 'Checking':
-        t = db_session.query(CheckingManagement).filter(CheckingManagement.SubName == subname).all()
+        t = db_session.query(Checking, CheckingManagement, Account).filter(Account.AccNum == Checking.AccNum, Checking.AccNum == CheckingManagement.AccNum, CheckingManagement.SubName == subname).all()
+        # t = db_session.query(CheckingManagement).filter(CheckingManagement.SubName == subname).all()
     elif acctype == 'Saving':
-        t = db_session.query(SavingManagement).filter(SavingManagement.SubName == subname).all()
+        t = db_session.query(Saving, SavingManagement, Account).filter(Account.AccNum == Saving.AccNum, Saving.AccNum == SavingManagement.AccNum, SavingManagement.SubName == subname).all()
+        # t = db_session.query(SavingManagement).filter(SavingManagement.SubName == subname).all()
     else:
         raise UndefindBehaviour
-    if t is None:
-        raise NotFind
     return t
 
 '''
@@ -393,15 +397,13 @@ return all account owned by id from Management table
 input: acctype(str), id(str)
 acctype == 'Checking' or 'Saving'
 '''
-def _getAllAccountByID(acctype, id):
+def _getAccountByID(acctype, id):
     if acctype == 'Checking':
-        t = db_session.query(CheckingManagement).filter(CheckingManagement.ID == id).all()
+        t = db_session.query(Checking, CheckingManagement, Account).filter(Account.AccNum == Checking.AccNum, Checking.AccNum == CheckingManagement.AccNum, CheckingManagement.ID == id).all()
     elif acctype == 'Saving':
-        t = db_session.query(SavingManagement).filter(SavingManagement.ID == id).all()
+        t = db_session.query(Saving, SavingManagement, Account).filter(Account.AccNum == Saving.AccNum, Saving.AccNum == SavingManagement.AccNum, SavingManagement.ID == id).all()
     else:
         raise UndefindBehaviour
-    if t is None:
-        raise NotFind
     return t
 
 '''

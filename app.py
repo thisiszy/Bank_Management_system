@@ -96,6 +96,113 @@ def delUserLogic():
         response_object['message'] = 'User deleted!'
         return jsonify(response_object)
 
+@app.route('/account', methods=['GET', 'POST'])
+def accountLogic():
+    response_object = {'status': 'success'}
+    if request.method == 'POST':
+        post_data = request.get_json()
+        if post_data.get('type') == "0":
+            print(post_data)
+            createAccount(
+                'Saving',
+                {
+                'AccNum': post_data.get('AccNum'),
+                'ID': post_data.get('ID'),
+                'Balance': post_data.get('Balance'),
+                'OpenDate': post_data.get('OpenDate'),
+                'SubName': post_data.get('SubName'),
+                'Rate': post_data.get('Rate'),
+                'CurrencyType': post_data.get('CurrencyType'),
+                })
+        elif post_data.get('type') == "1":
+            createAccount(
+                'Checking',
+                {
+                'AccNum': post_data.get('AccNum'),
+                'ID': post_data.get('ID'),
+                'Balance': post_data.get('Balance'),
+                'OpenDate': post_data.get('OpenDate'),
+                'SubName': post_data.get('SubName'),
+                'Overdraft': post_data.get('Overdraft'),
+                })
+        else:
+            response_object['message'] = 'Add failed!'
+    else:
+        if request.args.get("type") == "0":
+            accounts = getAllAccount()
+            response_object['accounts'] = []
+            for bound in accounts:
+                temp = {k: str(v) for k, v in bound[0].to_dict().items()}
+                temp = dict({k: str(v) for k, v in bound[1].to_dict().items()}, **temp )
+                response_object['accounts'].append(temp)
+        elif request.args.get("type") == "2":
+            accounts = getAccountByID(request.args.get("content"))
+            response_object['accounts'] = []
+            for bound in accounts:
+                temp = {k: str(v) for k, v in bound[0].to_dict().items()}
+                temp = dict({k: str(v) for k, v in bound[1].to_dict().items()}, **temp )
+                temp = dict({k: str(v) for k, v in bound[2].to_dict().items()}, **temp )
+                response_object['accounts'].append(temp)
+        elif request.args.get("type") == "1":
+            accounts = getAccountBySub(request.args.get("content"))
+            response_object['accounts'] = [request.args.get("content")]
+            for bound in accounts:
+                temp = {k: str(v) for k, v in bound[0].to_dict().items()}
+                temp = dict({k: str(v) for k, v in bound[1].to_dict().items()}, **temp )
+                temp = dict({k: str(v) for k, v in bound[2].to_dict().items()}, **temp )
+                response_object['accounts'].append(temp)
+        else:
+            response_object['message'] = 'get error!'
+    return jsonify(response_object)
+
+@app.route('/delacc', methods=['POST'])
+def delAccountLogic():
+    response_object = {'status': 'success'}
+    if request.method == 'POST':
+        post_data = request.get_json()
+        delAccount(post_data.get('AccNum'))
+        response_object['message'] = 'Account deleted!'
+        return jsonify(response_object)
+
+@app.route('/adduser2acc', methods=['POST'])
+def addUser2AccLogic():
+    response_object = {'status': 'success'}
+    if request.method == 'POST':
+        post_data = request.get_json()
+        addUser2Account(post_data.get('ID'), post_data.get('AccNum'))
+        response_object['message'] = 'User added!'
+        return jsonify(response_object)
+
+@app.route('/acctype', methods=['GET'])
+def accountTypeLogic():
+    response_object = {'status': 'success'}
+    if request.method == 'GET':
+        type = getAccountType(request.args.get("AccNum"))
+        if type == 'Checking':
+            response_object['acctype'] = '1'
+        elif type == 'Saving':
+            response_object['acctype'] = '0'
+        return jsonify(response_object)
+
+@app.route('/alteracc', methods=['POST'])
+def accAlterLogic():
+    response_object = {'status': 'success'}
+    if request.method == 'POST':
+        post_data = request.get_json()
+        alterAccount(
+            post_data.get('AccNum'),
+            {
+            'AccNum': post_data.get('AccNum'),
+            'Balance': post_data.get('Balance'),
+            'LastAccessTime': post_data.get('LastAccessTime'),
+            'Rate': post_data.get('Rate'),
+            'CurrencyType': post_data.get('CurrencyType'),
+            'Overdraft': post_data.get('Overdraft'),
+            }
+        )
+        response_object['message'] = 'Account altered!'
+        return jsonify(response_object)
+
 # sanity check route
 @app.route('/ping', methods=['GET'])
 def ping_pong():
