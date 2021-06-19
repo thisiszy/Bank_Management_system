@@ -509,7 +509,7 @@ def _getPaiedForLoan(loannum):
 get loan status
 input: loannum(str)
 return: status(str)
-status: DONE(has been granted), ING(not yet done), IDEA(not yet start)
+status: DONE(has been granted), ING(not yet done), IDLE(not yet start)
 '''
 def _getLoanStatus(loannum):
     paied = _getPaiedForLoan(loannum)
@@ -517,7 +517,7 @@ def _getLoanStatus(loannum):
     if l.Budget < paied:
         raise OutOfBound
     elif paied == 0:
-        return 'IDEA'
+        return 'IDLE'
     elif l.Budget > paied:
         return 'ING'
     else:

@@ -120,4 +120,13 @@ def getLoanByNum(num):
 def getLoanByID(id):
     return backend.storeprocess._getAllLoanByID(id)
 
+def getPaied4Loan(loannum):
+    return backend.storeprocess._getPaiedForLoan(loannum)
+
+def delLoan(loannum):
+    return backend.storeprocess._delLoan(loannum)
+
+def getLoanStatus(loannum):
+    return backend.storeprocess._getLoanStatus(loannum)
+
 # def dataStatistic():
