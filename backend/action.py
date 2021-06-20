@@ -144,4 +144,29 @@ def payForLoan(info):
         backend.storeprocess.db_session.rollback()
         raise UnknownError
 
-# def dataStatistic():
+def getAllSub():
+    return backend.storeprocess._getAllSubInfo()
+
+def dataStatistic(sublist, starttime, endtime):
+    datalist = []
+    for sub in sublist:
+        checking = backend.storeprocess._getCheckingAccountBySubName(sub, time={"start":starttime,"end":endtime})
+        saving = backend.storeprocess._getSavingAccountBySubName(sub, time={"start":starttime,"end":endtime})
+        loan = backend.storeprocess._getLoanPaiedBySubName(sub, time={"start":starttime,"end":endtime})
+        if len(starttime) and len(endtime):
+            checkingnum = sum([account[0].Balance for account in checking])
+            savingnum = sum([account[0].Balance for account in saving])
+        else:
+            checkingnum = sum([account.Balance for account in checking])
+            savingnum = sum([account.Balance for account in saving])
+        datalist.append({
+            "Subbranch": sub,
+            "Assets": checkingnum + savingnum,
+            "CheckingAssets": checkingnum,
+            "SavingAssets": savingnum,
+            "SavingAccountNum": len(saving), 
+            "CheckingAccountNum":len(checking),
+            "LoanAssets": -loan,
+        })
+
+    return datalist

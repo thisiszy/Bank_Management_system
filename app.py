@@ -15,6 +15,8 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 
 from flask import Flask, jsonify, request
 
+currentsub = {}
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
@@ -250,6 +252,47 @@ def grantLoanLogic():
         })
         response_object['message'] = 'Loan deleted!'
         return jsonify(response_object)
+
+
+@app.route('/subbranch', methods=['GET'])
+def getsubLogic():
+    global currentsub
+    response_object = {'status': 'success'}
+    if request.method == 'GET':
+        if request.args.get("type") == "0" or request.args.get("content") == "All":
+            sub = getAllSub()
+            sublist = [item.SubName for item in sub]
+            response_object['sub'] = dataStatistic(sublist, request.args.get("start"), request.args.get("end"))
+            print(response_object['sub'])
+        else:
+            response_object['sub'] = dataStatistic([request.args.get("content")], request.args.get("start"), request.args.get("end"))
+            print(response_object['sub'])
+            # response_object['sub'] = [dict({"Status":getLoanStatus(item.LoanNum), "Paied":getPaied4Loan(item.LoanNum)}, **{ k: str(v) for k, v in item.to_dict().items() }) for item in sub]
+        # elif request.args.get("type") == "1":
+        #     sub = getLoanByID(request.args.get("content"))
+        #     response_object['sub'] = [dict({"Status":getLoanStatus(item.LoanNum), "Paied":getPaied4Loan(item.LoanNum)}, **{ k: str(v) for k, v in item.to_dict().items() }) for item in sub]
+        # elif request.args.get("type") == "2":
+        #     sub = getLoanByNum(request.args.get("content"))
+        #     response_object['sub'] = [dict({"Status":getLoanStatus(sub.LoanNum), "Paied":getPaied4Loan(sub.LoanNum)}, **{ k: str(v) for k, v in sub.to_dict().items() })]
+    return jsonify(response_object)
+
+@app.route('/sublist', methods=['GET'])
+def getsublistLogic():
+    global currentsub
+    response_object = {'status': 'success'}
+    if request.method == 'GET':
+        sub = getAllSub()
+        response_object['subbranch'] = []
+        currentsub.clear()
+        for i in range(len(sub)):
+            response_object['subbranch'].append(
+                {
+                    "id": str(i),
+                    "name": sub[i].SubName
+                }
+            )
+            currentsub[i] = sub[i].SubName
+    return jsonify(response_object)
 
 # sanity check route
 @app.route('/ping', methods=['GET'])

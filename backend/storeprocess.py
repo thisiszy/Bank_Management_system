@@ -552,8 +552,6 @@ id is LoanNum
 def _delLoan(id):
     l = db_session.query(Loan).filter(Loan.LoanNum == id)
     pay = db_session.query(PayRecord).filter(PayRecord.LoanNum == id)
-    # print(pay)
-    # print(l)
     if l.first() is None:
         raise NotFind
     if _getLoanStatus(id) == 'ING':
@@ -562,40 +560,77 @@ def _delLoan(id):
     l.delete()
 
 '''
-get saving account by a special subbranch
+get saving account by a special subbranch and time
 input: subname(str)
 return Account object list
 '''
-def _getSavingAccountBySubName(subname):
+def _getSavingAccountBySubName(subname, **kw):
     if db_session.query(Subbranch).filter(Subbranch.SubName == subname).first() is None:
         raise NotFind
-    return db_session.query(Saving).join(SavingManagement).filter(SavingManagement.SubName == subname).all()
+    if "time" in kw and len(kw['time']) == 2 and len(kw['time']['start']) and len(kw['time']['end']):
+        return db_session.query(Saving, Account).filter(Saving.AccNum == Account.AccNum).join(SavingManagement).filter(SavingManagement.SubName == subname, Account.OpenDate >= kw['time']['start'], Account.OpenDate <= kw['time']['end']).all()
+    else:
+        return db_session.query(Saving).join(SavingManagement).filter(SavingManagement.SubName == subname).all()
 
 '''
 get saving total by a special subbranch
 input: subname(str)
 return float
 '''
-def _getSavingNumBySubName(subname):
-    saving = _getSavingAccountBySubName(subname)
-    return sum([account.Balance for account in saving])
+def _getSavingNumBySubName(subname, **kw):
+    if "time" in kw:
+        saving = _getSavingAccountBySubName(subname, time=kw['time'])
+        return sum([account[0].Balance for account in saving])
+    else:
+        saving = _getSavingAccountBySubName(subname)
+        return sum([account.Balance for account in saving])
 
 '''
-get checking account by a special subbranch
+get checking account by a special subbranch and time
 input: subname(str)
 return Account object list
 '''
-def _getCheckingAccountBySubName(subname):
+def _getCheckingAccountBySubName(subname, **kw):
     if db_session.query(Subbranch).filter(Subbranch.SubName == subname).first() is None:
         raise NotFind
-    return db_session.query(Checking).join(CheckingManagement).filter(CheckingManagement.SubName == subname).all()
+    if "time" in kw and len(kw['time']) == 2 and len(kw['time']['start']) and len(kw['time']['end']):
+        return db_session.query(Checking, Account).filter(Checking.AccNum == Account.AccNum).join(CheckingManagement).filter(CheckingManagement.SubName == subname, Account.OpenDate >= kw['time']['start'], Account.OpenDate <= kw['time']['end']).all()
+    else:
+        return db_session.query(Checking).join(CheckingManagement).filter(CheckingManagement.SubName == subname).all()
 
 '''
-get checking total by a special subbranch
-input: subname(str)
+get checking total by a special subbranch and time
+input: subname(str), kw(time={"start":"2020-10-5", "end":"2021-10-5"})
 return float
 '''
-def _getCheckingNumBySubName(subname):
-    checking = _getCheckingAccountBySubName(subname)
-    return sum([account.Balance for account in checking])
+def _getCheckingNumBySubName(subname, **kw):
+    if "time" in kw:
+        checking = _getCheckingAccountBySubName(subname, time=kw['time'])
+        return sum([account[0].Balance for account in checking])
+    else:
+        checking = _getCheckingAccountBySubName(subname)
+        return sum([account.Balance for account in checking])
 
+'''
+get loan paied total by a special subbranch and time
+input: subname(str), kw(time={"start":"2020-10-5", "end":"2021-10-5"})
+return float
+'''
+def _getLoanPaiedBySubName(subname, **kw):
+    if "time" in kw and len(kw['time']) == 2 and len(kw['time']['start']) and len(kw['time']['end']):
+        payrecord = db_session.query(PayRecord).filter(PayRecord.SubName == subname, PayRecord.PayDate >= kw['time']['start'], PayRecord.PayDate <= kw['time']['end']).all()
+    else:
+        payrecord = db_session.query(PayRecord).filter(PayRecord.SubName == subname).all()
+    return sum([pay.Amount for pay in payrecord])
+
+'''
+return subbranch data from Subbranch table
+'''
+def _getAllSubInfo():
+    return db_session.query(Subbranch).all()
+
+'''
+return subbranch data from Subbranch table by subbranch name
+'''
+def _getSubInfoByName(subname):
+    return db_session.query(Subbranch).filter(Subbranch.SubName == subname).all()
