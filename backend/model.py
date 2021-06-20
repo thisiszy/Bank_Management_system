@@ -19,6 +19,12 @@ def __init__(self, data):
 Base.__init__ = __init__
 
 
+class Admin(Base):
+    __tablename__ = 'Admin'
+
+    username = Column(CHAR(19), primary_key=True)
+    password = Column(CHAR(100), nullable=False)
+
 class Account(Base):
     __tablename__ = 'Account'
 

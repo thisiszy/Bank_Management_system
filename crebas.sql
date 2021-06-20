@@ -17,9 +17,16 @@ drop table if exists User;
 drop table if exists Worker;
 drop table if exists possess;
 drop table if exists Relate;
-SET FOREIGN_KEY_CHECKS = 1;
 drop table if exists possess;
+drop table if exists Admin;
+SET FOREIGN_KEY_CHECKS = 1;
 
+create table Admin
+(
+   username               char(19) not null  comment '',
+   password              char(100) not null  comment '',
+   primary key (username)
+);
 /*==============================================================*/
 /* Table: Account                                               */
 /*==============================================================*/

@@ -1,10 +1,15 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, make_response, session, redirect, g
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
+from flask_login import login_user,UserMixin,LoginManager,login_required
 from flask_cors import CORS
 from backend.action import *
 from backend.database import db_session
+from flask_httpauth import HTTPBasicAuth
+auth = HTTPBasicAuth()
 
 # configuration
 DEBUG = True
+SECRET_KEY = 'jklklsadhfjkhwbii9/sdf\sdf'
 
 # instantiate the app
 app = Flask(__name__)
@@ -21,6 +26,42 @@ currentsub = {}
 def shutdown_session(exception=None):
     db_session.remove()
 
+@app.after_request
+def after_request(resp):
+    resp = make_response(resp)
+    resp.headers['Access-Control-Allow-Origin'] = 'http://localhost:8080'
+    resp.headers['Access-Control-Allow-Methods'] = 'GET,POST'
+    resp.headers['Access-Control-Allow-Headers'] = 'content-type,token'
+    return resp
+
+@app.route('/login',methods=['POST'])
+def login():
+    json = request.get_json()
+    if Auth(json['username'], json['password']):
+        s = Serializer(SECRET_KEY, expires_in = 600)
+        token = s.dumps({ 'username': json['username'] })
+        return jsonify({"token": token.decode("utf-8")})
+    return "wrong password"
+
+@auth.verify_password
+def verify_password(username, pwd):
+    token = request.headers.get('token')
+    if token is None:
+        return None
+    s = Serializer(SECRET_KEY)
+    try:
+        data = s.loads(token)
+    except SignatureExpired:
+        return None # valid token, but expired
+    except BadSignature:
+        return None # invalid token
+    admin = getAdmin(data['username'])
+    if admin is not None:
+        g.admin = admin
+        return True
+    return False
+
+@auth.login_required
 @app.route('/workers', methods=['GET'])
 def allWorkers():
     response_object = {'status': 'success'}
@@ -40,6 +81,7 @@ def allWorkers():
     return jsonify(response_object)
 
 @app.route('/user', methods=['GET', 'POST'])
+@auth.login_required
 def userLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
@@ -70,6 +112,7 @@ def userLogic():
     return jsonify(response_object)
 
 @app.route('/alteruser', methods=['POST'])
+@auth.login_required
 def userAlterLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
@@ -89,6 +132,7 @@ def userAlterLogic():
         return jsonify(response_object)
 
 @app.route('/deluser', methods=['POST'])
+@auth.login_required
 def delUserLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
@@ -98,12 +142,12 @@ def delUserLogic():
         return jsonify(response_object)
 
 @app.route('/account', methods=['GET', 'POST'])
+@auth.login_required
 def accountLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json()
         if post_data.get('type') == "0":
-            print(post_data)
             createAccount(
                 'Saving',
                 {
@@ -157,6 +201,7 @@ def accountLogic():
     return jsonify(response_object)
 
 @app.route('/delacc', methods=['POST'])
+@auth.login_required
 def delAccountLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
@@ -166,6 +211,7 @@ def delAccountLogic():
         return jsonify(response_object)
 
 @app.route('/adduser2acc', methods=['POST'])
+@auth.login_required
 def addUser2AccLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
@@ -175,6 +221,7 @@ def addUser2AccLogic():
         return jsonify(response_object)
 
 @app.route('/acctype', methods=['GET'])
+@auth.login_required
 def accountTypeLogic():
     response_object = {'status': 'success'}
     if request.method == 'GET':
@@ -186,6 +233,7 @@ def accountTypeLogic():
         return jsonify(response_object)
 
 @app.route('/alteracc', methods=['POST'])
+@auth.login_required
 def accAlterLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
@@ -205,6 +253,7 @@ def accAlterLogic():
         return jsonify(response_object)
 
 @app.route('/loan', methods=['GET', 'POST'])
+@auth.login_required
 def loanLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
@@ -231,6 +280,7 @@ def loanLogic():
     return jsonify(response_object)
 
 @app.route('/delloan', methods=['POST'])
+@auth.login_required
 def delLoanLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
@@ -240,6 +290,7 @@ def delLoanLogic():
         return jsonify(response_object)
 
 @app.route('/grantloan', methods=['POST'])
+@auth.login_required
 def grantLoanLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
@@ -255,6 +306,7 @@ def grantLoanLogic():
 
 
 @app.route('/subbranch', methods=['GET'])
+@auth.login_required
 def getsubLogic():
     global currentsub
     response_object = {'status': 'success'}
@@ -263,10 +315,8 @@ def getsubLogic():
             sub = getAllSub()
             sublist = [item.SubName for item in sub]
             response_object['sub'] = dataStatistic(sublist, request.args.get("start"), request.args.get("end"))
-            print(response_object['sub'])
         else:
             response_object['sub'] = dataStatistic([request.args.get("content")], request.args.get("start"), request.args.get("end"))
-            print(response_object['sub'])
             # response_object['sub'] = [dict({"Status":getLoanStatus(item.LoanNum), "Paied":getPaied4Loan(item.LoanNum)}, **{ k: str(v) for k, v in item.to_dict().items() }) for item in sub]
         # elif request.args.get("type") == "1":
         #     sub = getLoanByID(request.args.get("content"))
@@ -277,6 +327,7 @@ def getsubLogic():
     return jsonify(response_object)
 
 @app.route('/sublist', methods=['GET'])
+@auth.login_required
 def getsublistLogic():
     global currentsub
     response_object = {'status': 'success'}

@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from backend.database import db_session, conn
 from sqlalchemy import exc
+import hashlib
 
 '''
 import sql file to mysqldb by filepath
@@ -634,3 +635,35 @@ return subbranch data from Subbranch table by subbranch name
 '''
 def _getSubInfoByName(subname):
     return db_session.query(Subbranch).filter(Subbranch.SubName == subname).all()
+
+'''
+auth admin
+'''
+def _auth(username, password):
+    a = db_session.query(Admin).filter(Admin.username == username).first()
+    if a is None:
+        raise NotFind
+    sha256 = hashlib.sha256()
+    sha256.update(password.encode('utf-8'))
+    return a.password == sha256.hexdigest()
+    
+'''
+add admin
+'''
+def _addAdmin(username, password):
+    a = db_session.query(Admin).filter(Admin.username == username).first()
+    if a is not None:
+        raise DupId
+    sha256 = hashlib.sha256()
+    sha256.update(password.encode('utf-8'))
+    db_session.add(Admin({
+        "username": username,
+        "password": sha256.hexdigest()
+    }))
+
+'''
+get admin
+'''
+def _getAdmin(username):
+    return db_session.query(Admin).filter(Admin.username == username).first()
+    

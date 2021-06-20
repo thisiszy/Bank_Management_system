@@ -170,3 +170,17 @@ def dataStatistic(sublist, starttime, endtime):
         })
 
     return datalist
+
+def Auth(username, pwd):
+    return backend.storeprocess._auth(username, pwd)
+    
+def addAdmin(username, pwd):
+    backend.storeprocess._addAdmin(username, pwd)
+    try:
+        backend.storeprocess.db_session.commit()
+    except Exception:
+        backend.storeprocess.db_session.rollback()
+        raise UnknownError
+
+def getAdmin(username):
+    return backend.storeprocess._getAdmin(username)
