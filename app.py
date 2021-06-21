@@ -169,31 +169,45 @@ def accountLogic():
         else:
             response_object['message'] = 'Add failed!'
     else:
-        if request.args.get("type") == "0":
-            accounts = getAllAccount()
-            response_object['accounts'] = []
-            for bound in accounts:
-                temp = {k: str(v) for k, v in bound[0].to_dict().items()}
-                temp = dict({k: str(v) for k, v in bound[1].to_dict().items()}, **temp )
-                response_object['accounts'].append(temp)
-        elif request.args.get("type") == "2":
-            accounts = getAccountByID(request.args.get("content"))
-            response_object['accounts'] = []
-            for bound in accounts:
-                temp = {k: str(v) for k, v in bound[0].to_dict().items()}
-                temp = dict({k: str(v) for k, v in bound[1].to_dict().items()}, **temp )
-                temp = dict({k: str(v) for k, v in bound[2].to_dict().items()}, **temp )
-                response_object['accounts'].append(temp)
-        elif request.args.get("type") == "1":
-            accounts = getAccountBySub(request.args.get("content"))
-            response_object['accounts'] = [request.args.get("content")]
-            for bound in accounts:
-                temp = {k: str(v) for k, v in bound[0].to_dict().items()}
-                temp = dict({k: str(v) for k, v in bound[1].to_dict().items()}, **temp )
-                temp = dict({k: str(v) for k, v in bound[2].to_dict().items()}, **temp )
-                response_object['accounts'].append(temp)
-        else:
-            response_object['message'] = 'get error!'
+        accounts = getAccount({
+            'ID': request.args.get("ID"),
+            'AccNum': request.args.get("AccNum"),
+            'AccType': request.args.get("AccType"),
+            'SubName': request.args.get("SubName"),
+            'BalanceMin': request.args.get("BalanceMin"),
+            'BalanceMax': request.args.get("BalanceMax"),
+        })
+        response_object['accounts'] = []
+        for bound in accounts:
+            temp = {k: str(v) for k, v in bound[0].to_dict().items()}
+            temp = dict({k: str(v) for k, v in bound[1].to_dict().items()}, **temp )
+            temp = dict({k: str(v) for k, v in bound[2].to_dict().items()}, **temp )
+            response_object['accounts'].append(temp)
+        # if request.args.get("type") == "0":
+        #     accounts = getAllAccount()
+        #     response_object['accounts'] = []
+        #     for bound in accounts:
+        #         temp = {k: str(v) for k, v in bound[0].to_dict().items()}
+        #         temp = dict({k: str(v) for k, v in bound[1].to_dict().items()}, **temp )
+        #         response_object['accounts'].append(temp)
+        # elif request.args.get("type") == "2":
+        #     accounts = getAccountByID(request.args.get("content"))
+        #     response_object['accounts'] = []
+        #     for bound in accounts:
+        #         temp = {k: str(v) for k, v in bound[0].to_dict().items()}
+        #         temp = dict({k: str(v) for k, v in bound[1].to_dict().items()}, **temp )
+        #         temp = dict({k: str(v) for k, v in bound[2].to_dict().items()}, **temp )
+        #         response_object['accounts'].append(temp)
+        # elif request.args.get("type") == "1":
+        #     accounts = getAccountBySub(request.args.get("content"))
+        #     response_object['accounts'] = [request.args.get("content")]
+        #     for bound in accounts:
+        #         temp = {k: str(v) for k, v in bound[0].to_dict().items()}
+        #         temp = dict({k: str(v) for k, v in bound[1].to_dict().items()}, **temp )
+        #         temp = dict({k: str(v) for k, v in bound[2].to_dict().items()}, **temp )
+        #         response_object['accounts'].append(temp)
+        # else:
+        #     response_object['message'] = 'get error!'
     return jsonify(response_object)
 
 @app.route('/delacc', methods=['POST'])

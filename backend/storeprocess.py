@@ -427,6 +427,64 @@ def _getAccountByID(acctype, id):
     return t
 
 '''
+return all account owned by id from Management table
+input: acctype(str), id(str)
+acctype == 'Checking' or 'Saving'
+'''
+def _getAccount(info):
+    sel = 0
+    if 'AccType' in info and len(info['AccType']) != 0:
+        if(info['AccType'] == 'Checking'):
+            sel = 1
+        elif(info['AccType'] == 'Saving'):
+            sel = 2
+        else:
+            raise UndefindBehaviour
+    if sel != 2:
+        t = db_session.query(Checking, CheckingManagement, Account).filter(Account.AccNum == Checking.AccNum, Checking.AccNum == CheckingManagement.AccNum)
+        if 'ID' in info and len(info['ID']) != 0:
+            t = t.filter(CheckingManagement.ID.like('%'+info['ID']+'%'))
+        if 'AccNum' in info and len(info['AccNum']) != 0:
+            t = t.filter(CheckingManagement.AccNum.like('%'+info['AccNum']+'%'))
+        if 'BalanceMin' in info and len(info['BalanceMin']) != 0:
+            t = t.filter(Account.Balance >= info['BalanceMin'])
+        if 'BalanceMax' in info and len(info['BalanceMax']) != 0:
+            t = t.filter(Account.Balance <= info['BalanceMax'])
+        if 'SubName' in info and len(info['SubName']) != 0:
+            t = t.filter(CheckingManagement.SubName.like('%'+info['SubName']+'%'))
+        # if 'ContectTel' in info and len(info['ContectTel']) != 0:
+        #     t = t.filter(User.ContectTel.like('%'+info['ContectTel']+'%'))
+        # if 'ContectEmail' in info and len(info['ContectEmail']) != 0:
+        #     t = t.filter(User.ContectEmail.like('%'+info['ContectEmail']+'%'))
+        # if 'Relationship' in info and len(info['Relationship']) != 0:
+        #     t = t.filter(User.Relationship.like('%'+info['Relationship']+'%'))
+    if sel != 1:
+        s = db_session.query(Saving, SavingManagement, Account).filter(Account.AccNum == Saving.AccNum, Saving.AccNum == SavingManagement.AccNum)
+        if 'ID' in info and len(info['ID']) != 0:
+            s = s.filter(SavingManagement.ID.like('%'+info['ID']+'%'))
+        if 'AccNum' in info and len(info['AccNum']) != 0:
+            s = s.filter(SavingManagement.AccNum.like('%'+info['AccNum']+'%'))
+        if 'BalanceMin' in info and len(info['BalanceMin']) != 0:
+            s = s.filter(Account.Balance >= info['BalanceMin'])
+        if 'BalanceMax' in info and len(info['BalanceMax']) != 0:
+            s = s.filter(Account.Balance <= info['BalanceMax'])
+        if 'SubName' in info and len(info['SubName']) != 0:
+            s = s.filter(SavingManagement.SubName.like('%'+info['SubName']+'%'))
+        # if 'ContectTel' in info and len(info['ContectTel']) != 0:
+        #     s = s.filter(User.ContectTel.like('%'+info['ContectTel']+'%'))
+        # if 'ContectEmail' in info and len(info['ContectEmail']) != 0:
+        #     s = s.filter(User.ContectEmail.like('%'+info['ContectEmail']+'%'))
+        # if 'Relationship' in info and len(info['Relationship']) != 0:
+        #     s = s.filter(User.Relationship.like('%'+info['Relationship']+'%'))
+    if sel == 1:
+        return t.all()
+    if sel == 2:
+        return s.all()
+    else:
+        # return t.group_by(Account.AccNum).all()+s.group_by(Account.AccNum).all()
+        return t.all()+s.all()
+
+'''
 return account number owned by id and in subname bank from Management table
 input: acctype(str), id(str), subname(str)
 acctype == 'Checking' or 'Saving'

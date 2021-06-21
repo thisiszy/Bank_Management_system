@@ -77,6 +77,9 @@ def getAllAccount():
 def getAccountType(accnum):
     return backend.storeprocess._getAccountType(accnum)
 
+def getAccount(info):
+    return backend.storeprocess._getAccount(info)
+
 def getAccountByID(id):
     return backend.storeprocess._getAccountByID('Saving', id) + backend.storeprocess._getAccountByID('Checking', id)
 
