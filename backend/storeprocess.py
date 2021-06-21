@@ -639,6 +639,23 @@ def _delLoan(id):
     l.delete()
 
 '''
+return loaninfo from Loan table
+'''
+def _getLoan(info):
+    t = db_session.query(Loan)
+    if 'ID' in info and len(info['ID']) != 0:
+        t = t.filter(Loan.User.any(User.ID.like('%'+info['ID']+'%')))
+    if 'LoanNum' in info and len(info['LoanNum']) != 0:
+        t = t.filter(Loan.LoanNum.like('%'+info['LoanNum']+'%'))
+    if 'SubName' in info and len(info['SubName']) != 0:
+        t = t.filter(Loan.SubName.like('%'+info['SubName']+'%'))
+    if 'MinBudget' in info and len(info['MinBudget']) != 0:
+        t = t.filter(Loan.Budget >= info['MinBudget'])
+    if 'MaxBudget' in info and len(info['MaxBudget']) != 0:
+        t = t.filter(Loan.Budget <= info['MaxBudget'])
+    return t.all() 
+
+'''
 get saving account by a special subbranch and time
 input: subname(str)
 return Account object list

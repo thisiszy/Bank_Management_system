@@ -125,6 +125,9 @@ def delLoan(loannum):
 def getLoanStatus(loannum):
     return backend.storeprocess._getLoanStatus(loannum)
 
+def getLoan(info):
+    return backend.storeprocess._getLoan(info)
+
 def payForLoan(info):
     loaninfo = backend.storeprocess._getLoanByLoanNum(info['LoanNum'])
     info['SubName'] = loaninfo.SubName

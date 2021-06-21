@@ -251,17 +251,22 @@ def loanLogic():
         post_data.get('ID'))
         response_object['message'] = 'Loan added!'
     else:
-        if request.args.get("type") == "0":
-            loans = getAllLoan()
-            response_object['loans'] = [dict({"Status":getLoanStatus(item.LoanNum), "Paied":getPaied4Loan(item.LoanNum)}, **{ k: str(v) for k, v in item.to_dict().items() }) for item in loans]
-        elif request.args.get("type") == "1":
-            loans = getLoanByID(request.args.get("content"))
-            response_object['loans'] = [dict({"Status":getLoanStatus(item.LoanNum), "Paied":getPaied4Loan(item.LoanNum)}, **{ k: str(v) for k, v in item.to_dict().items() }) for item in loans]
-        elif request.args.get("type") == "2":
-            loans = getLoanByNum(request.args.get("content"))
-            response_object['loans'] = [dict({"Status":getLoanStatus(loans.LoanNum), "Paied":getPaied4Loan(loans.LoanNum)}, **{ k: str(v) for k, v in loans.to_dict().items() })]
-        else:
-            response_object['message'] = 'get error!'
+        loans = getLoan(
+            {
+            'ID': request.args.get("ID"),
+            'LoanNum': request.args.get("LoanNum"),
+            'SubName': request.args.get("SubName"),
+            'MinBudget': request.args.get("MinBudget"),
+            'MaxBudget': request.args.get("MaxBudget"),
+            'Status': request.args.get("Status"),
+            }
+        )
+        response_object['loans'] = []
+        for item in loans:
+            rstatus = request.args.get("Status")
+            status = getLoanStatus(item.LoanNum)
+            if rstatus is None or len(rstatus) == 0 or rstatus == status:
+                response_object['loans'].append(dict({"Status":status, "Paied":getPaied4Loan(item.LoanNum)}, **{ k: str(v) for k, v in item.to_dict().items() }))
     return jsonify(response_object)
 
 @app.route('/delloan', methods=['POST'])

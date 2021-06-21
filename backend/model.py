@@ -89,6 +89,7 @@ class Loan(Base):
     Budget = Column(Float(8), nullable=False)
     LoanNum = Column(DECIMAL(8, 0), primary_key=True, nullable=False)
 
+    User = relationship('User', secondary='possess')
     Subbranch = relationship('Subbranch')
 
 
