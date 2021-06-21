@@ -634,7 +634,7 @@ def _delLoan(id):
         raise NotFind
     if _getLoanStatus(id) == 'ING':
         raise PermissionDenied
-    _alterBankAsset(l.SubName, l.Budget)
+    _alterBankAsset(l.first().SubName, l.first().Budget)
     pay.delete()
     l.delete()
 

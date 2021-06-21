@@ -152,7 +152,7 @@ def dataStatistic(sublist, starttime, endtime):
             savingnum = sum([account.Balance for account in saving])
         datalist.append({
             "Subbranch": sub,
-            "Assets": checkingnum + savingnum,
+            "Assets": checkingnum + savingnum - loan,
             "CheckingAssets": checkingnum,
             "SavingAssets": savingnum,
             "SavingAccountNum": len(saving), 
