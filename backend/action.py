@@ -35,6 +35,9 @@ def delUser(id):
 def getAllUser():
     return backend.storeprocess._getAllUserInfo()
 
+def getUser(info):
+    return backend.storeprocess._getUserInfo(info)
+
 def getUserByID(id):
     try:
         return backend.storeprocess._getUserbyID(id)

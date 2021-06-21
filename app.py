@@ -96,19 +96,15 @@ def userLogic():
         })
         response_object['message'] = 'User added!'
     else:
-        if request.args.get("type") == "0":
-            users = getAllUser()
-            response_object['users'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in users]
-        elif request.args.get("type") == "1":
-            users = getUserByID(request.args.get("content"))
-            if users is not None:
-                response_object['users'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in users]
-        elif request.args.get("type") == "2":
-            users = getUserByAccount(request.args.get("content"))
-            if users is not None:
-                response_object['users'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in users]
-        else:
-            response_object['message'] = 'get error!'
+        users = getUser({
+            'ID': request.args.get("ID"),
+            'Address': request.args.get("Address"),
+            'ContectName': request.args.get("ContectName"),
+            'ContectTel': request.args.get("ContectTel"),
+            'ContectEmail': request.args.get("ContectEmail"),
+            'Relationship': request.args.get("Relationship"),
+        })
+        response_object['users'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in users]
     return jsonify(response_object)
 
 @app.route('/alteruser', methods=['POST'])
@@ -317,13 +313,6 @@ def getsubLogic():
             response_object['sub'] = dataStatistic(sublist, request.args.get("start"), request.args.get("end"))
         else:
             response_object['sub'] = dataStatistic([request.args.get("content")], request.args.get("start"), request.args.get("end"))
-            # response_object['sub'] = [dict({"Status":getLoanStatus(item.LoanNum), "Paied":getPaied4Loan(item.LoanNum)}, **{ k: str(v) for k, v in item.to_dict().items() }) for item in sub]
-        # elif request.args.get("type") == "1":
-        #     sub = getLoanByID(request.args.get("content"))
-        #     response_object['sub'] = [dict({"Status":getLoanStatus(item.LoanNum), "Paied":getPaied4Loan(item.LoanNum)}, **{ k: str(v) for k, v in item.to_dict().items() }) for item in sub]
-        # elif request.args.get("type") == "2":
-        #     sub = getLoanByNum(request.args.get("content"))
-        #     response_object['sub'] = [dict({"Status":getLoanStatus(sub.LoanNum), "Paied":getPaied4Loan(sub.LoanNum)}, **{ k: str(v) for k, v in sub.to_dict().items() })]
     return jsonify(response_object)
 
 @app.route('/sublist', methods=['GET'])

@@ -108,6 +108,25 @@ def _alterUser(id, newinfo):
     db_session.query(User).filter(User.ID == id).update(newinfo)
 
 '''
+return userinfo from User table
+'''
+def _getUserInfo(info):
+    t = db_session.query(User)
+    if 'ID' in info and len(info['ID']) != 0:
+        t = t.filter(User.ID.like('%'+info['ID']+'%'))
+    if 'Address' in info and len(info['Address']) != 0:
+        t = t.filter(User.Address.like('%'+info['Address']+'%'))
+    if 'ContectName' in info and len(info['ContectName']) != 0:
+        t = t.filter(User.ContectName.like('%'+info['ContectName']+'%'))
+    if 'ContectTel' in info and len(info['ContectTel']) != 0:
+        t = t.filter(User.ContectTel.like('%'+info['ContectTel']+'%'))
+    if 'ContectEmail' in info and len(info['ContectEmail']) != 0:
+        t = t.filter(User.ContectEmail.like('%'+info['ContectEmail']+'%'))
+    if 'Relationship' in info and len(info['Relationship']) != 0:
+        t = t.filter(User.Relationship.like('%'+info['Relationship']+'%'))
+    return t.all() 
+
+'''
 return all userinfo from User table
 '''
 def _getAllUserInfo():
@@ -557,6 +576,7 @@ def _delLoan(id):
         raise NotFind
     if _getLoanStatus(id) == 'ING':
         raise PermissionDenied
+    _alterBankAsset(l.SubName, l.Budget)
     pay.delete()
     l.delete()
 
