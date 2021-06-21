@@ -32,23 +32,8 @@ def delUser(id):
         backend.storeprocess.db_session.rollback()
         raise UnknownError
 
-def getAllUser():
-    return backend.storeprocess._getAllUserInfo()
-
 def getUser(info):
     return backend.storeprocess._getUserInfo(info)
-
-def getUserByID(id):
-    try:
-        return backend.storeprocess._getUserbyID(id)
-    except NotFind:
-        return None
-
-def getUserByAccount(accnum):
-    try:
-        return backend.storeprocess._getUserbyAccount(accnum)
-    except NotFind:
-        return None
 
 def createAccount(acctype, info):
     Transactions = backend.storeprocess._createAccount(acctype, info)
