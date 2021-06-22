@@ -211,6 +211,11 @@ def _createAccount(acctype, info):
         del info['LastAccessTime']
     if db_session.query(Account).filter(Account.AccNum == info['AccNum']).first() is not None:
         raise DupId
+    if db_session.query(User).filter(User.ID == info['ID']).first() is None:
+        raise NotFind("Not find user")
+    b = db_session.query(Subbranch).filter(Subbranch.SubName == info['SubName']).first()
+    if b is None:
+        raise NotFind("Not find Subbranch name")
     try:
         if acctype == 'Checking':
             # db_session.add(Checking(info))
@@ -269,9 +274,6 @@ def _createAccount(acctype, info):
             )
         else:
             raise UndefindBehaviour
-        b = db_session.query(Subbranch).filter(Subbranch.SubName == info['SubName']).first()
-        if b is None:
-            raise NotFind
         conn.execute(
             '''
             UPDATE Subbranch SET SubAssets = %s

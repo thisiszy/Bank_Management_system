@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, make_response, session, g, abort
+from flask import Flask, jsonify, make_response, session, g
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 from flask_login import login_user,UserMixin,LoginManager,login_required
 from flask_cors import CORS
