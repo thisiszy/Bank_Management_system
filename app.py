@@ -131,6 +131,8 @@ def userAlterLogic():
             'ContectTel': post_data.get('ContectTel'),
             'ContectEmail': post_data.get('ContectEmail'),
             'Relationship': post_data.get('Relationship'),
+            'WorkerID': post_data.get('WorkerID'),
+            'Role': post_data.get('Role'),
             }
         )
         response_object['message'] = 'User altered!'

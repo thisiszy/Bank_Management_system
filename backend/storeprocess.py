@@ -89,6 +89,7 @@ def _delUser(id):
         raise NotFind
     try:
         db_session.query(User).filter(User.ID == id).delete()
+        db_session.query(Relate).filter(Relate.ID == id).delete()
     except exc.IntegrityError:
         raise Unmodifiable("Can't delete item with foreign key")
 
@@ -99,6 +100,8 @@ newinfo include ID, Address, ContectName, ContectTel,
 ContectEmail, Relationship
 '''
 def _alterUser(id, newinfo):
+    del newinfo['WorkerID']
+    del newinfo['Role']
     if id != newinfo['ID']:
         raise Unmodifiable
     if db_session.query(User).filter(User.ID == id).first() is None:
@@ -188,11 +191,14 @@ input: info(dict)
 info include WorkerID, ID and Role
 '''
 def _alterRelate(newinfo):
-    if db_session.query(Relate).filter(Relate.ID == newinfo['ID'], Relate.WorkerID == newinfo['WorkerID']).first() is None:
+    # if db_session.query(Relate).filter(Relate.ID == newinfo['ID'], Relate.WorkerID == newinfo['WorkerID']).first() is None:
+    if db_session.query(Relate).filter(Relate.ID == newinfo['ID']).first() is None:
         raise NotFind
     if len(newinfo) < len(Relate.__table__.columns):
         raise IncompleteData
-    db_session.query(Relate).filter(Relate.ID == newinfo['ID'], Relate.WorkerID == newinfo['WorkerID']).update(newinfo)
+    db_session.query(Relate).filter(Relate.ID == newinfo['ID']).delete()
+    _addRelate(newinfo)
+    # db_session.query(Relate).filter(Relate.ID == newinfo['ID'], Relate.WorkerID == newinfo['WorkerID']).update(newinfo)
 
 '''
 add account
@@ -263,10 +269,20 @@ def _createAccount(acctype, info):
             )
         else:
             raise UndefindBehaviour
-    except KeyError:
+        b = db_session.query(Subbranch).filter(Subbranch.SubName == info['SubName']).first()
+        if b is None:
+            raise NotFind
+        conn.execute(
+            '''
+            UPDATE Subbranch SET SubAssets = %s
+            WHERE SubName = %s
+            ''',
+            (b.SubAssets+float(info['Balance']), info['SubName'])
+        )
+    except Exception:
         Transactions.rollback()
-        raise IncompleteData
-    _alterBankAsset(info['SubName'], float(info['Balance']))
+        raise UnknownError
+    # _alterBankAsset(info['SubName'], float(info['Balance']))
     return Transactions
 
 '''

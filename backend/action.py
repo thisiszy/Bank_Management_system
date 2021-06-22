@@ -22,7 +22,12 @@ def createUser(info):
         raise UnknownError
 
 def alterUser(id, newinfo):
-    backend.storeprocess._alterUser(id, newinfo)
+    backend.storeprocess._alterUser(id, newinfo.copy())
+    backend.storeprocess._alterRelate({
+        "ID": newinfo['ID'],
+        "WorkerID": newinfo['WorkerID'],
+        "Role": newinfo['Role'],
+    })
     try:
         backend.storeprocess.db_session.commit()
     except Exception:
@@ -44,10 +49,8 @@ def createAccount(acctype, info):
     Transactions = backend.storeprocess._createAccount(acctype, info)
     try:
         Transactions.commit()
-        backend.storeprocess.db_session.commit()
     except Exception:
         Transactions.rollback()
-        backend.storeprocess.db_session.rollback()
         raise UnknownError
 
 def delAccount(accnum):
