@@ -93,6 +93,8 @@ def userLogic():
             'ContectTel': post_data.get('ContectTel'),
             'ContectEmail': post_data.get('ContectEmail'),
             'Relationship': post_data.get('Relationship'),
+            'WorkerID': post_data.get('WorkerID'),
+            'Role': post_data.get('Role'),
         })
         response_object['message'] = 'User added!'
     else:
@@ -103,8 +105,15 @@ def userLogic():
             'ContectTel': request.args.get("ContectTel"),
             'ContectEmail': request.args.get("ContectEmail"),
             'Relationship': request.args.get("Relationship"),
+            'WorkerID': request.args.get('WorkerID'),
+            'Role': request.args.get('Role'),
         })
-        response_object['users'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in users]
+        # response_object['users'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in users]
+        response_object['users'] = []
+        for bound in users:
+            temp = {k: str(v) for k, v in bound[0].to_dict().items()}
+            temp = dict({k: str(v) for k, v in bound[1].to_dict().items()}, **temp )
+            response_object['users'].append(temp)
     return jsonify(response_object)
 
 @app.route('/alteruser', methods=['POST'])

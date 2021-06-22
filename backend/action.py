@@ -10,6 +10,11 @@ def getAllWorkerInfo():
 
 def createUser(info):
     backend.storeprocess._createUser(info)
+    backend.storeprocess._addRelate({
+        "ID": info['ID'],
+        "WorkerID": info['WorkerID'],
+        "Role": info['Role'],
+    })
     try:
         backend.storeprocess.db_session.commit()
     except Exception:

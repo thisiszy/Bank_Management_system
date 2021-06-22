@@ -111,7 +111,7 @@ def _alterUser(id, newinfo):
 return userinfo from User table
 '''
 def _getUserInfo(info):
-    t = db_session.query(User)
+    t = db_session.query(User, Relate).filter(User.ID == Relate.ID)
     if 'ID' in info and len(info['ID']) != 0:
         t = t.filter(User.ID.like('%'+info['ID']+'%'))
     if 'Address' in info and len(info['Address']) != 0:
@@ -124,6 +124,10 @@ def _getUserInfo(info):
         t = t.filter(User.ContectEmail.like('%'+info['ContectEmail']+'%'))
     if 'Relationship' in info and len(info['Relationship']) != 0:
         t = t.filter(User.Relationship.like('%'+info['Relationship']+'%'))
+    if 'WorkerID' in info and len(info['WorkerID']) != 0:
+        t = t.filter(Relate.WorkerID.like('%'+info['WorkerID']+'%'))
+    if 'Role' in info and len(info['Role']) != 0:
+        t = t.filter(Relate.Role.like('%'+info['Role']+'%'))
     return t.all() 
 
 '''
@@ -168,9 +172,9 @@ input: info(dict)
 info include WorkerID, ID and Role
 '''
 def _addRelate(info):
-    if db_session.query(User).filter(User.ID == info['ID']).first() is None:
-        raise NotFind("Not find User")
-    if db_session.query(Worker).filter(Worker.ID == info['WorkerID']).first() is None:
+    # if db_session.query(User).filter(User.ID == info['ID']).first() is None:
+    #     raise NotFind("Not find User")
+    if db_session.query(Worker).filter(Worker.WorkerID == info['WorkerID']).first() is None:
         raise NotFind("Not find Worker")
     if db_session.query(Relate).filter(Relate.ID == info['ID'], Relate.WorkerID == info['WorkerID']).first() is not None:
         raise DupId
