@@ -38,7 +38,7 @@ def after_request(resp):
 def login():
     json = request.get_json()
     if Auth(json['username'], json['password']):
-        s = Serializer(SECRET_KEY, expires_in = 600)
+        s = Serializer(SECRET_KEY, expires_in = 6000)
         token = s.dumps({ 'username': json['username'] })
         return jsonify({"token": token.decode("utf-8")})
     return jsonify({"msg":"wrong password"}), 404
@@ -193,7 +193,7 @@ def accountLogic():
             else:
                 raise UndefindBehaviour
         except Exception as e:
-            return jsonify({"msg":e.msg}), e.code
+            return jsonify({"msg":"add error"}), e.code
 
     else:
         accounts = getAccount({

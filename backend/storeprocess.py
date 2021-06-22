@@ -88,8 +88,8 @@ def _delUser(id):
     if db_session.query(User).filter(User.ID == id).first() is None:
         raise NotFind
     try:
-        db_session.query(User).filter(User.ID == id).delete()
         db_session.query(Relate).filter(Relate.ID == id).delete()
+        db_session.query(User).filter(User.ID == id).delete()
     except exc.IntegrityError:
         raise Unmodifiable("Can't delete item with foreign key")
 
