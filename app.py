@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, make_response, session, redirect, g
+from flask import Flask, jsonify, make_response, session, g, abort
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 from flask_login import login_user,UserMixin,LoginManager,login_required
 from flask_cors import CORS
@@ -41,7 +41,7 @@ def login():
         s = Serializer(SECRET_KEY, expires_in = 600)
         token = s.dumps({ 'username': json['username'] })
         return jsonify({"token": token.decode("utf-8")})
-    return "wrong password"
+    return jsonify({"msg":"wrong password"}), 404
 
 @auth.verify_password
 def verify_password(username, pwd):
@@ -66,15 +66,18 @@ def verify_password(username, pwd):
 def allWorkers():
     response_object = {'status': 'success'}
     if request.method == 'POST':
-        post_data = request.get_json()
-        # createWorker({
-        #     'SubName': post_data.get('SubName'),
-        #     'DepartNum': post_data.get('DepartNum'),
-        #     'WorkerID': post_data.get('WorkerID'),
-        #     'WorkerAddr': post_data.get('WorkerAddr'),
-        #     'StartDate': post_data.get('StartDate')
-        # })
-        response_object['message'] = 'Worker added!'
+        try:
+            post_data = request.get_json()
+            # createWorker({
+            #     'SubName': post_data.get('SubName'),
+            #     'DepartNum': post_data.get('DepartNum'),
+            #     'WorkerID': post_data.get('WorkerID'),
+            #     'WorkerAddr': post_data.get('WorkerAddr'),
+            #     'StartDate': post_data.get('StartDate')
+            # })
+            response_object['message'] = 'Worker added!'
+        except Exception as e:
+            return jsonify({"msg":e.msg}), e.code
     else:
         workers = getAllWorkerInfo()
         response_object['workers'] = [{ k: str(v) for k, v in item.to_dict().items() } for item in workers]
@@ -86,17 +89,20 @@ def userLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json()
-        createUser({
-            'ID': post_data.get('ID'),
-            'Address': post_data.get('Address'),
-            'ContectName': post_data.get('ContectName'),
-            'ContectTel': post_data.get('ContectTel'),
-            'ContectEmail': post_data.get('ContectEmail'),
-            'Relationship': post_data.get('Relationship'),
-            'WorkerID': post_data.get('WorkerID'),
-            'Role': post_data.get('Role'),
-        })
-        response_object['message'] = 'User added!'
+        try:
+            createUser({
+                'ID': post_data.get('ID'),
+                'Address': post_data.get('Address'),
+                'ContectName': post_data.get('ContectName'),
+                'ContectTel': post_data.get('ContectTel'),
+                'ContectEmail': post_data.get('ContectEmail'),
+                'Relationship': post_data.get('Relationship'),
+                'WorkerID': post_data.get('WorkerID'),
+                'Role': post_data.get('Role'),
+            })
+            response_object['message'] = 'User added!'
+        except Exception as e:
+            return jsonify({"msg":e.msg}), e.code
     else:
         users = getUser({
             'ID': request.args.get("ID"),
@@ -122,21 +128,24 @@ def userAlterLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json()
-        alterUser(
-            post_data.get('ID'),
-            {
-            'ID': post_data.get('ID'),
-            'Address': post_data.get('Address'),
-            'ContectName': post_data.get('ContectName'),
-            'ContectTel': post_data.get('ContectTel'),
-            'ContectEmail': post_data.get('ContectEmail'),
-            'Relationship': post_data.get('Relationship'),
-            'WorkerID': post_data.get('WorkerID'),
-            'Role': post_data.get('Role'),
-            }
-        )
-        response_object['message'] = 'User altered!'
-        return jsonify(response_object)
+        try:
+            alterUser(
+                post_data.get('ID'),
+                {
+                'ID': post_data.get('ID'),
+                'Address': post_data.get('Address'),
+                'ContectName': post_data.get('ContectName'),
+                'ContectTel': post_data.get('ContectTel'),
+                'ContectEmail': post_data.get('ContectEmail'),
+                'Relationship': post_data.get('Relationship'),
+                'WorkerID': post_data.get('WorkerID'),
+                'Role': post_data.get('Role'),
+                }
+            )
+            response_object['message'] = 'User altered!'
+            return jsonify(response_object)
+        except Exception as e:
+            return jsonify({"msg":e.msg}), e.code
 
 @app.route('/deluser', methods=['POST'])
 @auth.login_required
@@ -144,9 +153,12 @@ def delUserLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json()
-        delUser(post_data.get('ID'))
-        response_object['message'] = 'User deleted!'
-        return jsonify(response_object)
+        try:
+            delUser(post_data.get('ID'))
+            response_object['message'] = 'User deleted!'
+            return jsonify(response_object)
+        except Exception as e:
+            return jsonify({"msg":e.msg}), e.code
 
 @app.route('/account', methods=['GET', 'POST'])
 @auth.login_required
@@ -154,31 +166,35 @@ def accountLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json()
-        if post_data.get('type') == "0":
-            createAccount(
-                'Saving',
-                {
-                'AccNum': post_data.get('AccNum'),
-                'ID': post_data.get('ID'),
-                'Balance': post_data.get('Balance'),
-                'OpenDate': post_data.get('OpenDate'),
-                'SubName': post_data.get('SubName'),
-                'Rate': post_data.get('Rate'),
-                'CurrencyType': post_data.get('CurrencyType'),
-                })
-        elif post_data.get('type') == "1":
-            createAccount(
-                'Checking',
-                {
-                'AccNum': post_data.get('AccNum'),
-                'ID': post_data.get('ID'),
-                'Balance': post_data.get('Balance'),
-                'OpenDate': post_data.get('OpenDate'),
-                'SubName': post_data.get('SubName'),
-                'Overdraft': post_data.get('Overdraft'),
-                })
-        else:
-            response_object['message'] = 'Add failed!'
+        try:
+            if post_data.get('type') == "0":
+                createAccount(
+                    'Saving',
+                    {
+                    'AccNum': post_data.get('AccNum'),
+                    'ID': post_data.get('ID'),
+                    'Balance': post_data.get('Balance'),
+                    'OpenDate': post_data.get('OpenDate'),
+                    'SubName': post_data.get('SubName'),
+                    'Rate': post_data.get('Rate'),
+                    'CurrencyType': post_data.get('CurrencyType'),
+                    })
+            elif post_data.get('type') == "1":
+                createAccount(
+                    'Checking',
+                    {
+                    'AccNum': post_data.get('AccNum'),
+                    'ID': post_data.get('ID'),
+                    'Balance': post_data.get('Balance'),
+                    'OpenDate': post_data.get('OpenDate'),
+                    'SubName': post_data.get('SubName'),
+                    'Overdraft': post_data.get('Overdraft'),
+                    })
+            else:
+                raise UndefindBehaviour
+        except Exception as e:
+            return jsonify({"msg":e.msg}), e.code
+
     else:
         accounts = getAccount({
             'ID': request.args.get("ID"),
@@ -201,20 +217,26 @@ def accountLogic():
 def delAccountLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
-        post_data = request.get_json()
-        delAccount(post_data.get('AccNum'))
-        response_object['message'] = 'Account deleted!'
-        return jsonify(response_object)
+        try:
+            post_data = request.get_json()
+            delAccount(post_data.get('AccNum'))
+            response_object['message'] = 'Account deleted!'
+            return jsonify(response_object)
+        except Exception as e:
+            return jsonify({"msg":e.msg}), e.code
 
 @app.route('/adduser2acc', methods=['POST'])
 @auth.login_required
 def addUser2AccLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
-        post_data = request.get_json()
-        addUser2Account(post_data.get('ID'), post_data.get('AccNum'))
-        response_object['message'] = 'User added!'
-        return jsonify(response_object)
+        try:
+            post_data = request.get_json()
+            addUser2Account(post_data.get('ID'), post_data.get('AccNum'))
+            response_object['message'] = 'User added!'
+            return jsonify(response_object)
+        except Exception as e:
+            return jsonify({"msg":e.msg}), e.code
 
 @app.route('/acctype', methods=['GET'])
 @auth.login_required
@@ -233,34 +255,40 @@ def accountTypeLogic():
 def accAlterLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
-        post_data = request.get_json()
-        alterAccount(
-            post_data.get('AccNum'),
-            {
-            'AccNum': post_data.get('AccNum'),
-            'Balance': post_data.get('Balance'),
-            'LastAccessTime': post_data.get('LastAccessTime'),
-            'Rate': post_data.get('Rate'),
-            'CurrencyType': post_data.get('CurrencyType'),
-            'Overdraft': post_data.get('Overdraft'),
-            }
-        )
-        response_object['message'] = 'Account altered!'
-        return jsonify(response_object)
+        try:
+            post_data = request.get_json()
+            alterAccount(
+                post_data.get('AccNum'),
+                {
+                'AccNum': post_data.get('AccNum'),
+                'Balance': post_data.get('Balance'),
+                'LastAccessTime': post_data.get('LastAccessTime'),
+                'Rate': post_data.get('Rate'),
+                'CurrencyType': post_data.get('CurrencyType'),
+                'Overdraft': post_data.get('Overdraft'),
+                }
+            )
+            response_object['message'] = 'Account altered!'
+            return jsonify(response_object)
+        except Exception as e:
+            return jsonify({"msg":e.msg}), e.code
 
 @app.route('/loan', methods=['GET', 'POST'])
 @auth.login_required
 def loanLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
-        post_data = request.get_json()
-        createLoan({
-            'LoanNum': post_data.get('LoanNum'),
-            'Budget': post_data.get('Budget'),
-            'SubName': post_data.get('SubName'),
-        }, 
-        post_data.get('ID'))
-        response_object['message'] = 'Loan added!'
+        try:
+            post_data = request.get_json()
+            createLoan({
+                'LoanNum': post_data.get('LoanNum'),
+                'Budget': post_data.get('Budget'),
+                'SubName': post_data.get('SubName'),
+            }, 
+            post_data.get('ID'))
+            response_object['message'] = 'Loan added!'
+        except Exception as e:
+            return jsonify({"msg":e.msg}), e.code
     else:
         loans = getLoan(
             {
@@ -285,25 +313,31 @@ def loanLogic():
 def delLoanLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
-        post_data = request.get_json()
-        delLoan(post_data.get('LoanNum'))
-        response_object['message'] = 'Loan deleted!'
-        return jsonify(response_object)
+        try:
+            post_data = request.get_json()
+            delLoan(post_data.get('LoanNum'))
+            response_object['message'] = 'Loan deleted!'
+            return jsonify(response_object)
+        except Exception as e:
+            return jsonify({"msg":e.msg}), e.code
 
 @app.route('/grantloan', methods=['POST'])
 @auth.login_required
 def grantLoanLogic():
     response_object = {'status': 'success'}
     if request.method == 'POST':
-        post_data = request.get_json()
-        payForLoan({
-            'PayNum': post_data.get('PayNum'),
-            'LoanNum': post_data.get('LoanNum'),
-            'PayDate': post_data.get('PayDate'),
-            'Amount': post_data.get('Amount'),
-        })
-        response_object['message'] = 'Loan deleted!'
-        return jsonify(response_object)
+        try:
+            post_data = request.get_json()
+            payForLoan({
+                'PayNum': post_data.get('PayNum'),
+                'LoanNum': post_data.get('LoanNum'),
+                'PayDate': post_data.get('PayDate'),
+                'Amount': post_data.get('Amount'),
+            })
+            response_object['message'] = 'Loan deleted!'
+            return jsonify(response_object)
+        except Exception as e:
+            return jsonify({"msg":e.msg}), e.code
 
 
 @app.route('/subbranch', methods=['GET'])

@@ -17,9 +17,9 @@ def createUser(info):
     })
     try:
         backend.storeprocess.db_session.commit()
-    except Exception:
+    except Exception as e:
         backend.storeprocess.db_session.rollback()
-        raise UnknownError
+        raise e
 
 def alterUser(id, newinfo):
     backend.storeprocess._alterUser(id, newinfo.copy())
@@ -30,17 +30,17 @@ def alterUser(id, newinfo):
     })
     try:
         backend.storeprocess.db_session.commit()
-    except Exception:
+    except Exception as e:
         backend.storeprocess.db_session.rollback()
-        raise UnknownError
+        raise e
 
 def delUser(id):
     backend.storeprocess._delUser(id)
     try:
         backend.storeprocess.db_session.commit()
-    except Exception:
+    except Exception as e:
         backend.storeprocess.db_session.rollback()
-        raise UnknownError
+        raise e
 
 def getUser(info):
     return backend.storeprocess._getUserInfo(info)
@@ -49,17 +49,17 @@ def createAccount(acctype, info):
     Transactions = backend.storeprocess._createAccount(acctype, info)
     try:
         Transactions.commit()
-    except Exception:
+    except Exception as e:
         Transactions.rollback()
-        raise UnknownError
+        raise e
 
 def delAccount(accnum):
     backend.storeprocess._delAccount(accnum)
     try:
         backend.storeprocess.db_session.commit()
-    except Exception:
+    except Exception as e:
         backend.storeprocess.db_session.rollback()
-        raise UnknownError
+        raise e
 
 def alterAccount(accnum, newinfo):
     newinfo['AccNum'] = accnum
@@ -67,17 +67,17 @@ def alterAccount(accnum, newinfo):
     backend.storeprocess._alterAccount(acctype, accnum, newinfo)
     try:
         backend.storeprocess.db_session.commit()
-    except Exception:
+    except Exception as e:
         backend.storeprocess.db_session.rollback()
-        raise UnknownError
+        raise e
 
 def addUser2Account(ID, accnum):
     backend.storeprocess._addUser2Account(ID, accnum)
     try:
         backend.storeprocess.db_session.commit()
-    except Exception:
+    except Exception as e:
         backend.storeprocess.db_session.rollback()
-        raise UnknownError
+        raise e
 
 def getAllAccount():
     return backend.storeprocess._getAllAccountInfo('Saving') + backend.storeprocess._getAllAccountInfo('Checking')
@@ -98,17 +98,17 @@ def addUser2Account(id, accnum):
     backend.storeprocess._addUser2Account(id, accnum)
     try:
         backend.storeprocess.db_session.commit()
-    except Exception:
+    except Exception as e:
         backend.storeprocess.db_session.rollback()
-        raise UnknownError
+        raise e
 
 def createLoan(info, userlist):
     backend.storeprocess._createLoan(info, userlist)
     try:
         backend.storeprocess.db_session.commit()
-    except Exception:
+    except Exception as e:
         backend.storeprocess.db_session.rollback()
-        raise UnknownError
+        raise e
 
 def getAllLoan():
     return backend.storeprocess._getAllLoan()
@@ -126,9 +126,9 @@ def delLoan(loannum):
     backend.storeprocess._delLoan(loannum)
     try:
         backend.storeprocess.db_session.commit()
-    except Exception:
+    except Exception as e:
         backend.storeprocess.db_session.rollback()
-        raise UnknownError
+        raise e
 
 def getLoanStatus(loannum):
     return backend.storeprocess._getLoanStatus(loannum)
@@ -142,9 +142,9 @@ def payForLoan(info):
     backend.storeprocess._grantLoan(info)
     try:
         backend.storeprocess.db_session.commit()
-    except Exception:
+    except Exception as e:
         backend.storeprocess.db_session.rollback()
-        raise UnknownError
+        raise e
 
 def getAllSub():
     return backend.storeprocess._getAllSubInfo()
@@ -180,9 +180,9 @@ def addAdmin(username, pwd):
     backend.storeprocess._addAdmin(username, pwd)
     try:
         backend.storeprocess.db_session.commit()
-    except Exception:
+    except Exception as e:
         backend.storeprocess.db_session.rollback()
-        raise UnknownError
+        raise e
 
 def getAdmin(username):
     return backend.storeprocess._getAdmin(username)
