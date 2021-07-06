@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, make_response, session, g
+from flask import Flask, jsonify, make_response, session, g, render_template
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 from flask_login import login_user,UserMixin,LoginManager,login_required
 from flask_cors import CORS
@@ -20,7 +20,6 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 
 from flask import Flask, jsonify, request
 
-currentsub = {}
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -29,7 +28,7 @@ def shutdown_session(exception=None):
 @app.after_request
 def after_request(resp):
     resp = make_response(resp)
-    resp.headers['Access-Control-Allow-Origin'] = 'http://localhost:8080'
+    # resp.headers['Access-Control-Allow-Origin'] = 'http://localhost:5000'
     resp.headers['Access-Control-Allow-Methods'] = 'GET,POST'
     resp.headers['Access-Control-Allow-Headers'] = 'content-type,token'
     return resp
@@ -343,7 +342,6 @@ def grantLoanLogic():
 @app.route('/subbranch', methods=['GET'])
 @auth.login_required
 def getsubLogic():
-    global currentsub
     response_object = {'status': 'success'}
     if request.method == 'GET':
         if request.args.get("type") == "0" or request.args.get("content") == "All":
@@ -357,12 +355,10 @@ def getsubLogic():
 @app.route('/sublist', methods=['GET'])
 @auth.login_required
 def getsublistLogic():
-    global currentsub
     response_object = {'status': 'success'}
     if request.method == 'GET':
         sub = getAllSub()
         response_object['subbranch'] = []
-        currentsub.clear()
         for i in range(len(sub)):
             response_object['subbranch'].append(
                 {
@@ -370,7 +366,6 @@ def getsublistLogic():
                     "name": sub[i].SubName
                 }
             )
-            currentsub[i] = sub[i].SubName
     return jsonify(response_object)
 
 # sanity check route
