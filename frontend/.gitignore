@@ -1,22 +1,10 @@
-# backend
-*.bak
-/backend/__pycache__
-
-# frontend
-/frontend/node_modules
-
-# vue
 .DS_Store
-node_modules/
-/dist/
+node_modules
+/dist
 
 # local env files
 .env.local
 .env.*.local
-/tmp
-/tools
-/venv
-/tests
 
 # Log files
 npm-debug.log*
