@@ -9,6 +9,7 @@ auth = HTTPBasicAuth()
 
 # configuration
 DEBUG = True
+NO_AUTH = True
 SECRET_KEY = 'jklklsadhfjkhwbii9/sdf\sdf'
 
 # instantiate the app
@@ -36,11 +37,14 @@ def after_request(resp):
 @app.route('/login',methods=['POST'])
 def login():
     json = request.get_json()
-    if Auth(json['username'], json['password']):
-        s = Serializer(SECRET_KEY, expires_in = 6000)
-        token = s.dumps({ 'username': json['username'] })
+    s = Serializer(SECRET_KEY, expires_in = 6000)
+    token = s.dumps({ 'username': json['username'] })
+    if NO_AUTH == True:
         return jsonify({"token": token.decode("utf-8")})
-    return jsonify({"msg":"wrong password"}), 404
+    else:
+        if Auth(json['username'], json['password']):
+            return jsonify({"token": token.decode("utf-8")})
+        return jsonify({"msg":"wrong password"}), 404
 
 @auth.verify_password
 def verify_password(username, pwd):
